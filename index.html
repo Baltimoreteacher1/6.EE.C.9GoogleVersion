@@ -6,7 +6,7 @@
     <title>HELIX-PREDICT: Relationships & Graphs</title>
     <style>
         /* =========================================================
-           1. MASTER DESIGN SYSTEM (MODERN BOHO)
+           1. MASTER DESIGN SYSTEM (MODERN BOHO & GAMING UI)
            ========================================================= */
         :root {
             --navy: #263238;
@@ -17,305 +17,225 @@
             --white: #FFFFFF;
             --gray: #9E9E9E;
             --dark-text: #333333;
-            --font-primary: 'Montserrat', system-ui, -apple-system, sans-serif;
-            --font-secondary: 'Century Gothic', system-ui, -apple-system, sans-serif;
-            --hud-height: 60px;
+            --font-primary: 'Montserrat', system-ui, sans-serif;
+            --font-secondary: 'Century Gothic', system-ui, sans-serif;
+            --hud-height: 65px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-primary);
             background-color: var(--paper);
             color: var(--dark-text);
-            overflow-x: hidden;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            user-select: none; /* Prevents accidental text selection during drag */
         }
 
         /* =========================================================
-           2. ENTERPRISE HUD & UI POLISH
+           2. BOOT SCREEN & CO-OP OVERLAY
+           ========================================================= */
+        #boot-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--navy);
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--white);
+            transition: opacity 0.5s ease;
+        }
+
+        .mode-container {
+            display: flex; gap: 2rem; margin-top: 3rem;
+        }
+
+        .mode-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid var(--teal);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 250px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-card:hover {
+            background: var(--teal);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 150, 136, 0.4);
+        }
+
+        /* =========================================================
+           3. HUD & CORE UI
            ========================================================= */
         #hud {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: var(--hud-height);
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--hud-height);
             background-color: var(--navy);
             color: var(--white);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 3rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             z-index: 1000;
         }
 
-        .hud-stat {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .hud-stat { display: flex; flex-direction: column; align-items: center; }
+        .hud-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--teal); }
+        .hud-value { font-size: 1.3rem; font-weight: bold; }
+        .streak-glow { color: var(--coral); text-shadow: 0 0 12px rgba(255, 112, 67, 0.6); }
 
-        .hud-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--teal);
-        }
-
-        .hud-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .streak-glow {
-            color: var(--coral);
-            text-shadow: 0 0 10px rgba(255, 112, 67, 0.5);
-        }
-
-        /* =========================================================
-           3. MAIN CONTAINER & MICRO-TRANSITIONS
-           ========================================================= */
         #app-container {
             margin-top: calc(var(--hud-height) + 2rem);
-            padding: 1rem;
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            padding: 1rem; flex: 1; display: flex; justify-content: center; align-items: flex-start;
         }
 
         .phase-card {
             background: var(--white);
             border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 900px;
-            padding: 2.5rem;
-            opacity: 0;
-            transform: translateY(20px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            width: 100%; max-width: 1000px;
+            padding: 3rem;
+            opacity: 0; transform: translateY(20px);
             transition: opacity 0.4s ease, transform 0.4s ease;
             display: none;
         }
 
-        .phase-card.active {
-            opacity: 1;
-            transform: translateY(0);
-            display: block;
-        }
+        .phase-card.active { opacity: 1; transform: translateY(0); display: block; }
+        h2 { color: var(--navy); margin-bottom: 0.5rem; font-size: 2rem; }
+        .subtitle { color: var(--gray); font-family: var(--font-secondary); margin-bottom: 2.5rem; font-size: 1.1rem; }
 
-        h2 {
-            color: var(--navy);
-            margin-bottom: 0.5rem;
-            font-size: 1.8rem;
+        .btn {
+            background-color: var(--teal); color: var(--white);
+            border: none; padding: 14px 28px; border-radius: 8px;
+            font-size: 1.1rem; font-weight: bold; cursor: pointer;
+            transition: all 0.2s; font-family: var(--font-primary);
         }
+        .btn:hover { background-color: #00796B; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 150, 136, 0.3); }
+        .btn-coral { background-color: var(--coral); }
+        .btn-coral:hover { background-color: #E64A19; box-shadow: 0 4px 15px rgba(255, 112, 67, 0.3); }
 
-        .subtitle {
-            color: var(--gray);
-            font-family: var(--font-secondary);
-            margin-bottom: 2rem;
-            font-size: 1rem;
+        /* =========================================================
+           4. PHASE 1: DRAG & DROP MATCHING
+           ========================================================= */
+        .dnd-container { display: flex; gap: 3rem; }
+        .dnd-bank { flex: 1; display: flex; flex-direction: column; gap: 1rem; background: var(--sand); padding: 1.5rem; border-radius: 8px; }
+        .dnd-targets { flex: 2; display: flex; flex-direction: column; gap: 1.5rem; }
+        
+        .draggable-card {
+            background: var(--white); border: 2px solid var(--teal); border-radius: 6px;
+            padding: 1rem; font-weight: bold; text-align: center; color: var(--navy);
+            cursor: grab; transition: transform 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .draggable-card:active { cursor: grabbing; transform: scale(1.05); }
+        .draggable-card.matched { background: var(--teal); color: var(--white); cursor: default; }
+
+        .drop-row { display: flex; align-items: center; gap: 1rem; background: var(--white); padding: 1rem; border-radius: 8px; border: 1px solid var(--gray); }
+        .drop-zone {
+            width: 200px; height: 50px; border: 2px dashed var(--gray); border-radius: 6px;
+            display: flex; justify-content: center; align-items: center; background: var(--sand);
+            transition: all 0.2s; color: var(--gray); font-size: 0.9rem;
+        }
+        .drop-zone.drag-over { border-color: var(--coral); background: rgba(255, 112, 67, 0.1); }
+        .def-text { flex: 1; font-family: var(--font-secondary); font-size: 1.05rem; line-height: 1.4; }
+
+        /* =========================================================
+           5. PHASE 2: PRECISION SVG GRAPHING
+           ========================================================= */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; }
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 1.1rem; }
+        .data-table th { background-color: var(--navy); color: var(--white); padding: 12px; }
+        .data-table td { border: 1px solid var(--gray); padding: 12px; text-align: center; font-family: var(--font-secondary); font-weight: bold;}
+        
+        .svg-container {
+            width: 100%; background: var(--white); border: 2px solid var(--sand);
+            border-radius: 8px; position: relative; cursor: crosshair; overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+        }
+        
+        /* Ghost Crosshair & Tooltip */
+        .ghost-point { fill: rgba(255, 112, 67, 0.4); pointer-events: none; display: none; }
+        .ghost-label { font-family: var(--font-primary); font-size: 12px; font-weight: bold; fill: var(--navy); pointer-events: none; display: none; }
+        .axis-label { font-family: var(--font-primary); font-size: 14px; font-weight: bold; fill: var(--navy); }
+        .grid-label { font-family: var(--font-secondary); font-size: 11px; fill: var(--gray); }
+
+        /* =========================================================
+           6. PHASE 3: TWR ENGINE
+           ========================================================= */
+        .twr-frame { background: var(--sand); padding: 2.5rem; border-radius: 8px; border-left: 6px solid var(--teal); line-height: 2.4; font-size: 1.2rem; font-family: var(--font-secondary); }
+        .twr-input {
+            border: none; border-bottom: 3px solid var(--navy); background: rgba(255,255,255,0.5);
+            font-family: var(--font-primary); font-size: 1.2rem; color: var(--coral);
+            font-weight: bold; text-align: center; width: 130px; outline: none; transition: all 0.2s; padding: 2px 5px; border-radius: 4px 4px 0 0;
+        }
+        .twr-input:focus { border-bottom-color: var(--coral); background: rgba(255,255,255,0.9); }
+        .twr-select {
+            appearance: none; border: none; border-bottom: 3px solid var(--navy); background: rgba(255,255,255,0.5);
+            font-family: var(--font-primary); font-size: 1.2rem; color: var(--teal);
+            font-weight: bold; outline: none; cursor: pointer; padding: 2px 10px; border-radius: 4px 4px 0 0;
         }
 
         /* =========================================================
-           4. INTERACTIVE COMPONENTS
+           7. MODALS & TOASTS
            ========================================================= */
-        .btn {
-            background-color: var(--teal);
-            color: var(--white);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            font-family: var(--font-primary);
+        #coop-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(38, 50, 56, 0.9); z-index: 3000; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(5px);
         }
-
-        .btn:hover {
-            background-color: #00796B;
-            transform: translateY(-1px);
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .btn-coral {
-            background-color: var(--coral);
-        }
-        .btn-coral:hover {
-            background-color: #E64A19;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid var(--teal);
-            color: var(--teal);
-        }
-        .btn-outline:hover {
-            background-color: var(--sand);
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        /* Phase 1: Definitional Match */
-        .match-container {
-            display: flex;
-            gap: 2rem;
-            justify-content: space-between;
-        }
-        .match-column {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .match-item {
-            padding: 1rem;
-            border: 2px solid var(--sand);
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-            font-family: var(--font-secondary);
-        }
-        .match-item:hover {
-            border-color: var(--teal);
-            background-color: var(--sand);
-        }
-        .match-item.selected {
-            border-color: var(--coral);
-            background-color: rgba(255, 112, 67, 0.1);
-            font-weight: bold;
-        }
-        .match-item.locked {
-            border-color: var(--teal);
-            background-color: rgba(0, 150, 136, 0.1);
-            cursor: default;
-            color: var(--teal);
-            pointer-events: none;
-        }
-
-        /* Phase 2: SVG Plotting */
-        .svg-container {
-            width: 100%;
-            background: var(--white);
-            border: 1px solid var(--sand);
-            border-radius: 8px;
-            position: relative;
-            cursor: crosshair;
-            user-select: none;
-        }
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1.5rem;
-        }
-        .data-table th {
-            background-color: var(--navy);
-            color: var(--white);
-            padding: 10px;
-            text-align: center;
-        }
-        .data-table td {
-            border: 1px solid var(--gray);
-            padding: 10px;
-            text-align: center;
-            font-family: var(--font-secondary);
-        }
-
-        /* Phase 3: TWR Framework */
-        .twr-frame {
-            background: var(--sand);
-            padding: 2rem;
-            border-radius: 8px;
-            border-left: 4px solid var(--teal);
-            line-height: 2.2;
-            font-size: 1.1rem;
-            font-family: var(--font-secondary);
-        }
-        .twr-input {
-            border: none;
-            border-bottom: 2px solid var(--navy);
-            background: transparent;
-            font-family: var(--font-primary);
-            font-size: 1.1rem;
-            color: var(--coral);
-            font-weight: bold;
-            text-align: center;
-            width: 120px;
-            outline: none;
-            transition: border-color 0.2s;
-            padding: 0 5px;
-        }
-        .twr-input:focus {
-            border-bottom-color: var(--coral);
-        }
-        .twr-select {
-            appearance: none;
-            border: none;
-            border-bottom: 2px solid var(--navy);
-            background: transparent;
-            font-family: var(--font-primary);
-            font-size: 1.1rem;
-            color: var(--teal);
-            font-weight: bold;
-            outline: none;
-            cursor: pointer;
-            padding: 0 5px;
-        }
-
-        /* Feedback Toast */
+        .modal-card { background: var(--white); padding: 3rem; border-radius: 12px; text-align: center; max-width: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        
         #toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            padding: 12px 24px;
-            border-radius: 30px;
-            color: var(--white);
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 2000;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            padding: 16px 32px; border-radius: 30px; color: var(--white); font-weight: bold; font-size: 1.1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2000;
         }
-        #toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
         .toast-success { background-color: var(--teal); }
         .toast-error { background-color: var(--coral); }
 
-        .footer {
-            text-align: right;
-            padding: 1rem 2rem;
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
     </style>
 </head>
 <body>
 
+    <div id="boot-screen">
+        <h1 style="font-size: 3rem; margin-bottom: 1rem; color: var(--teal);">HELIX-PREDICT</h1>
+        <p style="font-size: 1.2rem; color: var(--gray);">Module: Relationships & Graphs</p>
+        <div class="mode-container">
+            <div class="mode-card" onclick="startGame('solo')">
+                <h3 style="color: var(--white); margin-bottom: 1rem;">Solo Agent</h3>
+                <p style="font-size: 0.9rem; color: var(--gray);">Standard individual assessment and practice protocol.</p>
+            </div>
+            <div class="mode-card" onclick="startGame('coop')">
+                <h3 style="color: var(--coral); margin-bottom: 1rem;">Pair Programming</h3>
+                <p style="font-size: 0.9rem; color: var(--gray);">Co-op mode. Requires dual-verification and communicative friction.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="coop-modal">
+        <div class="modal-card">
+            <h2 style="color: var(--coral);">Partner Verification</h2>
+            <p style="margin: 1.5rem 0; font-size: 1.1rem; color: var(--gray);">Did both partners discuss this solution and agree on the final answer?</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn btn-outline" onclick="closeModal(false)">Wait, let's review</button>
+                <button class="btn btn-coral" onclick="closeModal(true)">Yes, we agree</button>
+            </div>
+        </div>
+    </div>
+
     <div id="hud">
         <div class="hud-stat">
-            <span class="hud-label">Module</span>
-            <span class="hud-value">LearningOS • Math 6</span>
+            <span class="hud-label">Protocol</span>
+            <span class="hud-value" id="hud-protocol">Solo Agent</span>
         </div>
         <div class="hud-stat">
             <span class="hud-label">Phase</span>
-            <span class="hud-value" id="phase-indicator">1 : Definitional</span>
+            <span class="hud-value" id="phase-indicator">1 : Foundation</span>
         </div>
         <div class="hud-stat">
             <span class="hud-label">Streak</span>
@@ -329,28 +249,32 @@
 
     <div id="app-container">
         
-        <div id="phase-1" class="phase-card active">
+        <div id="phase-1" class="phase-card">
             <h2>Phase 1: Establish the Baseline</h2>
-            <div class="subtitle">Match the variables and terminology to build your foundation.</div>
+            <div class="subtitle">Drag the terminology cards into the correct definition drop zones.</div>
             
-            <div id="p1-content">
-                </div>
+            <div class="dnd-container" id="p1-content">
+                <div class="dnd-bank" id="drag-bank">
+                    </div>
+                <div class="dnd-targets" id="drop-targets">
+                    </div>
+            </div>
             
-            <div style="margin-top: 2rem; text-align: right;">
-                <button id="btn-p1-check" class="btn">Check Matches</button>
+            <div style="margin-top: 2.5rem; text-align: right;">
+                <button id="btn-p1-check" class="btn">Verify System</button>
             </div>
         </div>
 
         <div id="phase-2" class="phase-card">
             <h2>Phase 2: Data to Visuals</h2>
-            <div class="subtitle">Analyze the table and plot the corresponding coordinates. Click the grid intersections to plot points. Click a plotted point to remove it.</div>
+            <div class="subtitle">Hover over the coordinate plane to utilize the crosshair tracking. Click to plot the four points from the data table.</div>
             
             <div class="grid-2">
                 <div>
-                    <h3 style="color:var(--navy); margin-bottom: 1rem; font-size: 1.1rem;">Tramway Distance Over Time</h3>
+                    <h3 style="color:var(--navy); margin-bottom: 1rem;">Tramway Distance Over Time</h3>
                     <table class="data-table" id="p2-table">
                         <tr><th>Time (x)</th><th>Distance (y)</th></tr>
-                        </table>
+                    </table>
                 </div>
                 <div>
                     <div class="svg-container" id="svg-wrapper">
@@ -358,84 +282,90 @@
                 </div>
             </div>
 
-            <div style="margin-top: 2rem; text-align: right;">
-                <button id="btn-p2-check" class="btn">Verify Graph</button>
+            <div style="margin-top: 2.5rem; text-align: right;">
+                <button id="btn-p2-check" class="btn">Analyze Graph</button>
             </div>
         </div>
 
         <div id="phase-3" class="phase-card">
             <h2>Phase 3: The Mastery Engine</h2>
-            <div class="subtitle">Analyze the scenario, calculate the values, and synthesize your reasoning.</div>
+            <div class="subtitle">Read the dynamic scenario, calculate the limits, and synthesize your reasoning.</div>
             
-            <div id="p3-scenario" style="font-size: 1.2rem; margin-bottom: 1.5rem; color: var(--navy); font-weight: 500;">
+            <div id="p3-scenario" style="font-size: 1.3rem; margin-bottom: 2rem; color: var(--navy); font-weight: bold; background: var(--paper); padding: 1.5rem; border-radius: 8px; border: 1px solid #E0E0E0;">
                 </div>
 
             <div class="twr-frame" id="p3-twr">
                 </div>
 
-            <div style="margin-top: 2rem; display: flex; justify-content: space-between;">
-                <span style="color: var(--gray); font-size: 0.9rem; align-self: flex-end;">Infinite Generation Mode Active</span>
+            <div style="margin-top: 2.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--teal); font-size: 0.9rem; font-weight: bold;">Infinite Generation Mode Active</span>
                 <button id="btn-p3-check" class="btn btn-coral">Lock & Submit</button>
             </div>
         </div>
 
     </div>
 
-    <div class="footer">Neft | 6th Grade Math</div>
+    <div class="footer">Neft.Alba | Flagship Grade 6 Math</div>
     <div id="toast"></div>
 
     <script>
-        /**
-         * HELIX-PREDICT: Interactive State Machine & Procedural Engine
-         * Architecture: Deterministic DOM manipulation, pure SVG math rendering.
-         */
-
-        // --- STATE MANAGEMENT ---
         const State = {
-            xp: 0,
-            streak: 0,
-            currentPhase: 1,
+            mode: 'solo', // 'solo' or 'coop'
+            xp: 0, streak: 0, currentPhase: 1,
+            pendingCheckCallback: null,
             p1: {
-                selectedTerm: null,
-                selectedDef: null,
-                matches: 0,
+                matches: 0, draggedItem: null,
                 pairs: [
-                    { id: 't1', text: 'Independent Variable', matchId: 'd1', def: 'The quantity that stands alone and isn\'t changed by the other.' },
-                    { id: 't2', text: 'Dependent Variable', matchId: 'd2', def: 'The quantity that changes based on another quantity.' },
-                    { id: 't3', text: 'x-axis', matchId: 'd3', def: 'The horizontal axis on a coordinate plane.' },
-                    { id: 't4', text: 'y-axis', matchId: 'd4', def: 'The vertical axis on a coordinate plane.' }
-                ],
-                locked: []
+                    { id: 't1', text: 'Independent Variable', def: 'The quantity that stands alone and isn\'t changed by the other.' },
+                    { id: 't2', text: 'Dependent Variable', def: 'The quantity that changes based on another quantity.' },
+                    { id: 't3', text: 'x-axis', def: 'The horizontal axis on a coordinate plane.' },
+                    { id: 't4', text: 'y-axis', def: 'The vertical axis on a coordinate plane.' }
+                ]
             },
             p2: {
-                data: [
-                    { x: 1, y: 1200 },
-                    { x: 5, y: 6000 },
-                    { x: 10, y: 12000 },
-                    { x: 15, y: 18000 }
-                ],
-                plottedPoints: [], // stores {x, y}
-                config: { width: 450, height: 350, pad: 40, xMax: 16, yMax: 20000, xStep: 4, yStep: 5 }
+                data: [ { x: 1, y: 1200 }, { x: 5, y: 6000 }, { x: 10, y: 12000 }, { x: 15, y: 18000 } ],
+                plottedPoints: [],
+                config: { width: 550, height: 400, pad: 50, xMax: 16, yMax: 20000, xStep: 4, yStep: 5 }
             },
-            p3: {
-                scenarioType: 0, // 0: Tickets, 1: Savings, 2: Tramway
-                currentData: {}
-            }
+            p3: { currentData: {} }
         };
 
-        // --- CORE UI FUNCTIONS ---
+        // --- BOOT & CO-OP MECHANICS ---
+        function startGame(selectedMode) {
+            State.mode = selectedMode;
+            document.getElementById('hud-protocol').innerText = selectedMode === 'coop' ? 'Pair Programming' : 'Solo Agent';
+            document.getElementById('boot-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('boot-screen').style.display = 'none';
+                initPhase1();
+                switchPhase(1);
+            }, 500);
+        }
+
+        function requestCheck(callback) {
+            if (State.mode === 'coop') {
+                State.pendingCheckCallback = callback;
+                document.getElementById('coop-modal').style.display = 'flex';
+            } else {
+                callback();
+            }
+        }
+
+        function closeModal(agreed) {
+            document.getElementById('coop-modal').style.display = 'none';
+            if (agreed && State.pendingCheckCallback) {
+                State.pendingCheckCallback();
+            }
+            State.pendingCheckCallback = null;
+        }
+
+        // --- CORE UI ---
         function updateHUD() {
             document.getElementById('xp-counter').innerText = State.xp;
             const streakEl = document.getElementById('streak-counter');
             streakEl.innerText = State.streak + (State.streak >= 3 ? ' 🔥' : '');
-            if (State.streak >= 3) {
-                streakEl.classList.add('streak-glow');
-            } else {
-                streakEl.classList.remove('streak-glow');
-            }
-            document.getElementById('phase-indicator').innerText = 
-                State.currentPhase === 1 ? "1 : Definitional" :
-                State.currentPhase === 2 ? "2 : Visual Model" : "3 : Synthesis";
+            State.streak >= 3 ? streakEl.classList.add('streak-glow') : streakEl.classList.remove('streak-glow');
+            document.getElementById('phase-indicator').innerText = State.currentPhase === 1 ? "1 : Foundation" : State.currentPhase === 2 ? "2 : Visual Model" : "3 : Synthesis";
         }
 
         function showToast(message, isSuccess) {
@@ -446,106 +376,91 @@
         }
 
         function switchPhase(newPhase) {
-            document.getElementById(`phase-${State.currentPhase}`).classList.remove('active');
+            document.querySelectorAll('.phase-card').forEach(c => c.classList.remove('active'));
             State.currentPhase = newPhase;
             document.getElementById(`phase-${State.currentPhase}`).classList.add('active');
             updateHUD();
         }
 
-        function addXP(amount) {
-            State.xp += amount;
-            State.streak++;
-            updateHUD();
-        }
+        function addXP(amount) { State.xp += amount; State.streak++; updateHUD(); }
+        function resetStreak() { State.streak = 0; updateHUD(); }
 
-        function resetStreak() {
-            State.streak = 0;
-            updateHUD();
-        }
-
-        // --- PHASE 1 LOGIC ---
+        // --- PHASE 1: DRAG AND DROP ---
         function initPhase1() {
-            const container = document.getElementById('p1-content');
-            
-            // Shuffle copies
+            const bank = document.getElementById('drag-bank');
+            const targets = document.getElementById('drop-targets');
+            bank.innerHTML = '<div style="color:var(--gray); font-size:0.9rem; margin-bottom:1rem; text-align:center;">TERMINOLOGY BANK</div>';
+            targets.innerHTML = '';
+
             const terms = [...State.p1.pairs].sort(() => Math.random() - 0.5);
             const defs = [...State.p1.pairs].sort(() => Math.random() - 0.5);
 
-            let html = `<div class="match-container">
-                <div class="match-column" id="col-terms">`;
             terms.forEach(t => {
-                html += `<div class="match-item term" data-id="${t.id}">${t.text}</div>`;
+                const el = document.createElement('div');
+                el.className = 'draggable-card';
+                el.draggable = true;
+                el.innerText = t.text;
+                el.dataset.id = t.id;
+                el.addEventListener('dragstart', e => {
+                    State.p1.draggedItem = el;
+                    setTimeout(() => el.style.opacity = '0.5', 0);
+                });
+                el.addEventListener('dragend', e => {
+                    el.style.opacity = '1';
+                    State.p1.draggedItem = null;
+                });
+                bank.appendChild(el);
             });
-            html += `</div><div class="match-column" id="col-defs">`;
+
             defs.forEach(d => {
-                html += `<div class="match-item def" data-match="${d.matchId}">${d.def}</div>`;
-            });
-            html += `</div></div>`;
-            container.innerHTML = html;
-
-            // Event Listeners
-            document.querySelectorAll('.match-item.term').forEach(el => {
-                el.addEventListener('click', (e) => handleMatchClick(e.target, 'term'));
-            });
-            document.querySelectorAll('.match-item.def').forEach(el => {
-                el.addEventListener('click', (e) => handleMatchClick(e.target, 'def'));
+                const row = document.createElement('div');
+                row.className = 'drop-row';
+                row.innerHTML = `
+                    <div class="def-text">${d.def}</div>
+                    <div class="drop-zone" data-match="${d.id}">Drop Here</div>
+                `;
+                targets.appendChild(row);
             });
 
-            document.getElementById('btn-p1-check').addEventListener('click', checkPhase1);
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+                zone.addEventListener('dragleave', e => { zone.classList.remove('drag-over'); });
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    if (State.p1.draggedItem) {
+                        // Check match logic immediately on drop for tactile feedback
+                        if(State.p1.draggedItem.dataset.id === zone.dataset.match) {
+                            zone.innerHTML = '';
+                            zone.appendChild(State.p1.draggedItem);
+                            State.p1.draggedItem.draggable = false;
+                            State.p1.draggedItem.classList.add('matched');
+                            zone.style.border = '2px solid var(--teal)';
+                            State.p1.matches++;
+                        } else {
+                            showToast("Incorrect match. Try again.", false);
+                            resetStreak();
+                        }
+                    }
+                });
+            });
+
+            document.getElementById('btn-p1-check').onclick = () => {
+                requestCheck(() => {
+                    if (State.p1.matches === 4) {
+                        addXP(100);
+                        showToast("Foundation Verified! Moving to Phase 2.", true);
+                        setTimeout(() => { switchPhase(2); initPhase2(); }, 1500);
+                    } else {
+                        showToast("Complete all matches first.", false);
+                    }
+                });
+            };
         }
 
-        function handleMatchClick(element, type) {
-            if (element.classList.contains('locked')) return;
-
-            // Deselect peers
-            document.querySelectorAll(`.match-item.${type}`).forEach(el => el.classList.remove('selected'));
-            element.classList.add('selected');
-
-            if (type === 'term') State.p1.selectedTerm = element;
-            if (type === 'def') State.p1.selectedDef = element;
-
-            // Auto-check if both selected
-            if (State.p1.selectedTerm && State.p1.selectedDef) {
-                const tId = State.p1.selectedTerm.getAttribute('data-id');
-                const dMatch = State.p1.selectedDef.getAttribute('data-match');
-                
-                // Extract matching logic: t1 matches d1
-                if (tId.substring(1) === dMatch.substring(1)) {
-                    // Match!
-                    State.p1.selectedTerm.classList.remove('selected');
-                    State.p1.selectedTerm.classList.add('locked');
-                    State.p1.selectedDef.classList.remove('selected');
-                    State.p1.selectedDef.classList.add('locked');
-                    State.p1.selectedTerm = null;
-                    State.p1.selectedDef = null;
-                    State.p1.matches++;
-                    addXP(50);
-                } else {
-                    // Mismatch
-                    State.p1.selectedTerm.classList.remove('selected');
-                    State.p1.selectedDef.classList.remove('selected');
-                    State.p1.selectedTerm = null;
-                    State.p1.selectedDef = null;
-                    resetStreak();
-                    showToast("Not quite. Try a different combination.", false);
-                }
-            }
-        }
-
-        function checkPhase1() {
-            if (State.p1.matches === 4) {
-                showToast("Baseline Established! Moving to Phase 2.", true);
-                setTimeout(() => { switchPhase(2); initPhase2(); }, 1500);
-            } else {
-                showToast("Complete all matches first.", false);
-            }
-        }
-
-        // --- PHASE 2 LOGIC (SVG GRAPHING) ---
+        // --- PHASE 2: PRECISION GRAPHING ---
         function initPhase2() {
-            // Build Table
             const table = document.getElementById('p2-table');
-            // clear existing rows except header
             while(table.rows.length > 1) { table.deleteRow(1); }
             State.p2.data.forEach(pt => {
                 const tr = table.insertRow();
@@ -554,109 +469,126 @@
             });
 
             renderSVG();
-            document.getElementById('btn-p2-check').addEventListener('click', checkPhase2);
+            document.getElementById('btn-p2-check').onclick = () => {
+                requestCheck(checkPhase2);
+            };
         }
 
-        function mapToScreen(val, max, screenDim, isY) {
+        function mapToScreen(val, max, screenDim, isY, c) {
             const ratio = val / max;
-            const graphArea = screenDim - (State.p2.config.pad * 2);
-            if (isY) {
-                return State.p2.config.height - State.p2.config.pad - (ratio * graphArea);
-            }
-            return State.p2.config.pad + (ratio * graphArea);
+            const graphArea = screenDim - (c.pad * 2);
+            return isY ? c.height - c.pad - (ratio * graphArea) : c.pad + (ratio * graphArea);
         }
 
-        function mapToData(px, max, screenDim, isY) {
-            const graphArea = screenDim - (State.p2.config.pad * 2);
-            let ratio;
-            if (isY) {
-                ratio = (State.p2.config.height - State.p2.config.pad - px) / graphArea;
-            } else {
-                ratio = (px - State.p2.config.pad) / graphArea;
-            }
+        function mapToData(px, max, screenDim, isY, c) {
+            const graphArea = screenDim - (c.pad * 2);
+            let ratio = isY ? (c.height - c.pad - px) / graphArea : (px - c.pad) / graphArea;
             return ratio * max;
         }
 
         function renderSVG() {
             const c = State.p2.config;
-            let svg = `<svg id="math-plane" width="${c.width}" height="${c.height}" style="background:var(--white);">`;
+            let svg = `<svg id="math-plane" width="${c.width}" height="${c.height}">`;
             
-            // Grid Lines & Labels
             const graphW = c.width - (c.pad * 2);
             const graphH = c.height - (c.pad * 2);
 
-            // Y-axis
+            // Grid Lines
             for(let i=0; i<=c.yStep; i++) {
                 const yPos = c.height - c.pad - (i * (graphH / c.yStep));
                 const yVal = Math.round(i * (c.yMax / c.yStep));
                 svg += `<line x1="${c.pad}" y1="${yPos}" x2="${c.width-c.pad}" y2="${yPos}" stroke="var(--sand)" stroke-width="1"/>`;
-                svg += `<text x="${c.pad - 5}" y="${yPos + 4}" font-size="10" fill="var(--navy)" text-anchor="end">${yVal}</text>`;
+                svg += `<text class="grid-label" x="${c.pad - 8}" y="${yPos + 4}" text-anchor="end">${yVal}</text>`;
             }
-
-            // X-axis
             for(let i=0; i<=c.xStep; i++) {
                 const xPos = c.pad + (i * (graphW / c.xStep));
                 const xVal = Math.round(i * (c.xMax / c.xStep));
                 svg += `<line x1="${xPos}" y1="${c.pad}" x2="${xPos}" y2="${c.height-c.pad}" stroke="var(--sand)" stroke-width="1"/>`;
-                svg += `<text x="${xPos}" y="${c.height - c.pad + 15}" font-size="10" fill="var(--navy)" text-anchor="middle">${xVal}</text>`;
+                svg += `<text class="grid-label" x="${xPos}" y="${c.height - c.pad + 18}" text-anchor="middle">${xVal}</text>`;
             }
 
             // Axes
             svg += `<line x1="${c.pad}" y1="${c.pad}" x2="${c.pad}" y2="${c.height-c.pad}" stroke="var(--navy)" stroke-width="2"/>`;
             svg += `<line x1="${c.pad}" y1="${c.height-c.pad}" x2="${c.width-c.pad}" y2="${c.height-c.pad}" stroke="var(--navy)" stroke-width="2"/>`;
 
+            // Axis Labels
+            svg += `<text class="axis-label" x="${c.width/2}" y="${c.height - 10}" text-anchor="middle">Time (minutes)</text>`;
+            svg += `<text class="axis-label" x="15" y="${c.height/2}" text-anchor="middle" transform="rotate(-90 15,${c.height/2})">Distance (feet)</text>`;
+
             // Plotted Points
             State.p2.plottedPoints.forEach((pt, index) => {
-                const sx = mapToScreen(pt.x, c.xMax, c.width, false);
-                const sy = mapToScreen(pt.y, c.yMax, c.height, true);
-                svg += `<circle cx="${sx}" cy="${sy}" r="6" fill="var(--coral)" class="plotted-pt" data-idx="${index}" style="cursor:pointer;"/>`;
+                const sx = mapToScreen(pt.x, c.xMax, c.width, false, c);
+                const sy = mapToScreen(pt.y, c.yMax, c.height, true, c);
+                svg += `<circle cx="${sx}" cy="${sy}" r="7" fill="var(--coral)" class="plotted-pt" data-idx="${index}" style="cursor:pointer; stroke:var(--white); stroke-width:2px;"/>`;
             });
+
+            // Ghost Point (Dynamic precision affordance)
+            svg += `<circle id="ghost-pt" class="ghost-point" cx="0" cy="0" r="7"/>`;
+            svg += `<text id="ghost-lbl" class="ghost-label" x="0" y="0" text-anchor="middle"></text>`;
 
             svg += `</svg>`;
             document.getElementById('svg-wrapper').innerHTML = svg;
 
-            // Attach Event Listeners
             const svgEl = document.getElementById('math-plane');
+            svgEl.addEventListener('mousemove', handleSVGMove);
             svgEl.addEventListener('click', handleSVGClick);
         }
 
-        function handleSVGClick(e) {
+        function handleSVGMove(e) {
+            const c = State.p2.config;
             const svgEl = document.getElementById('math-plane');
             const rect = svgEl.getBoundingClientRect();
             const px = e.clientX - rect.left;
             const py = e.clientY - rect.top;
 
-            // Check if clicking existing point to remove
-            if (e.target.tagName === 'circle') {
+            let dataX = mapToData(px, c.xMax, c.width, false, c);
+            let dataY = mapToData(py, c.yMax, c.height, true, c);
+
+            // Precision Snap Math: X to nearest 1, Y to nearest 600 (aligns with 1200 rate)
+            dataX = Math.round(dataX);
+            dataY = Math.round(dataY / 600) * 600;
+
+            const ghostPt = document.getElementById('ghost-pt');
+            const ghostLbl = document.getElementById('ghost-lbl');
+
+            if(dataX >= 0 && dataX <= c.xMax && dataY >= 0 && dataY <= c.yMax) {
+                const gx = mapToScreen(dataX, c.xMax, c.width, false, c);
+                const gy = mapToScreen(dataY, c.yMax, c.height, true, c);
+                
+                ghostPt.setAttribute('cx', gx);
+                ghostPt.setAttribute('cy', gy);
+                ghostPt.style.display = 'block';
+
+                ghostLbl.textContent = `(${dataX}, ${dataY})`;
+                ghostLbl.setAttribute('x', gx);
+                ghostLbl.setAttribute('y', gy - 15);
+                ghostLbl.style.display = 'block';
+            } else {
+                ghostPt.style.display = 'none';
+                ghostLbl.style.display = 'none';
+            }
+        }
+
+        function handleSVGClick(e) {
+            if (e.target.tagName === 'circle' && e.target.id !== 'ghost-pt') {
                 const idx = parseInt(e.target.getAttribute('data-idx'));
                 State.p2.plottedPoints.splice(idx, 1);
                 renderSVG();
                 return;
             }
 
-            const c = State.p2.config;
-            // Bound check
-            if(px < c.pad - 10 || px > c.width - c.pad + 10 || py < c.pad - 10 || py > c.height - c.pad + 10) return;
+            const ghostLbl = document.getElementById('ghost-lbl');
+            if (ghostLbl.style.display === 'block') {
+                const txt = ghostLbl.textContent.replace(/[()]/g, '').split(',');
+                const dataX = parseInt(txt[0]);
+                const dataY = parseInt(txt[1]);
 
-            // Convert to data coords
-            let dataX = mapToData(px, c.xMax, c.width, false);
-            let dataY = mapToData(py, c.yMax, c.height, true);
-
-            // Snap to grid integers (or logic steps based on step size)
-            // For X: snap to nearest integer. For Y: snap to nearest 1000.
-            dataX = Math.round(dataX);
-            dataY = Math.round(dataY / 1000) * 1000;
-
-            // Limit bounds
-            if(dataX < 0) dataX = 0; if(dataX > c.xMax) dataX = c.xMax;
-            if(dataY < 0) dataY = 0; if(dataY > c.yMax) dataY = c.yMax;
-
-            // Don't plot more than required points
-            if (State.p2.plottedPoints.length < 4) {
-                State.p2.plottedPoints.push({x: dataX, y: dataY});
-                renderSVG();
-            } else {
-                showToast("Remove a point before adding another.", false);
+                if (State.p2.plottedPoints.length < 4) {
+                    State.p2.plottedPoints.push({x: dataX, y: dataY});
+                    renderSVG();
+                } else {
+                    showToast("Capacity reached. Click a point to remove it.", false);
+                }
             }
         }
 
@@ -665,99 +597,68 @@
                 showToast("Please plot exactly 4 points.", false);
                 return;
             }
-
-            // Verify
             let correctCount = 0;
             State.p2.plottedPoints.forEach(p => {
-                const match = State.p2.data.find(d => d.x === p.x && d.y === p.y);
-                if(match) correctCount++;
+                if(State.p2.data.find(d => d.x === p.x && d.y === p.y)) correctCount++;
             });
 
             if (correctCount === 4) {
-                addXP(200);
+                addXP(250);
                 showToast("Visual Model Verified! Initializing TWR Engine.", true);
                 setTimeout(() => { switchPhase(3); initPhase3(); }, 1500);
             } else {
                 resetStreak();
-                showToast(`Check your points. ${correctCount}/4 are correct.`, false);
+                showToast(`Calculations mismatch. ${correctCount}/4 points are correct.`, false);
             }
         }
 
-        // --- PHASE 3 LOGIC (PROCEDURAL TWR) ---
+        // --- PHASE 3: TWR PROCEDURAL ENGINE ---
         function initPhase3() {
             generateProceduralQuestion();
-            // Need to remove old listener if regenerating to avoid duplicates, handled via inline assignment or single init.
-            const btn = document.getElementById('btn-p3-check');
-            btn.onclick = checkPhase3;
+            document.getElementById('btn-p3-check').onclick = () => {
+                requestCheck(checkPhase3);
+            };
         }
 
         function generateProceduralQuestion() {
             const types = [
-                {
-                    context: "Ticket Cost",
-                    indLabel: "number of tickets",
-                    depLabel: "total cost",
-                    baseRateMin: 20, baseRateMax: 60,
-                    unit: "$"
-                },
-                {
-                    context: "Savings Account",
-                    indLabel: "months saved",
-                    depLabel: "total saved",
-                    baseRateMin: 25, baseRateMax: 150,
-                    unit: "$"
-                },
-                {
-                    context: "Tram Travel",
-                    indLabel: "minutes traveled",
-                    depLabel: "distance traveled",
-                    baseRateMin: 500, baseRateMax: 1500,
-                    unit: "ft"
-                }
+                { context: "Ticket Cost", indLabel: "number of tickets", depLabel: "total cost", min: 20, max: 60, unit: "$" },
+                { context: "Savings Account", indLabel: "months saved", depLabel: "total saved", min: 25, max: 150, unit: "$" },
+                { context: "Tram Travel", indLabel: "minutes traveled", depLabel: "distance traveled", min: 500, max: 1500, unit: "ft" }
             ];
 
             const t = types[Math.floor(Math.random() * types.length)];
-            const rate = Math.floor(Math.random() * (t.baseRateMax - t.baseRateMin + 1)) + t.baseRateMin;
+            const rate = Math.floor(Math.random() * (t.max - t.min + 1)) + t.min;
             const qMulti = Math.floor(Math.random() * 8) + 3; // 3 to 10
-            const constraintMulti = qMulti - (Math.floor(Math.random()*2)+1); // slightly less
+            const constraintMulti = qMulti - (Math.floor(Math.random()*2)+1); 
             const totalCost = rate * qMulti;
             const constraintCost = rate * constraintMulti;
 
-            State.p3.currentData = {
-                type: t,
-                rate: rate,
-                qMulti: qMulti,
-                totalCost: totalCost,
-                constraintMulti: constraintMulti,
-                constraintCost: constraintCost
-            };
+            State.p3.currentData = { type: t, rate: rate, totalCost: totalCost, constraintMulti: constraintMulti };
 
-            // Inject Scenario
-            let scenarioHTML = `Context: ${t.context}. <br>
-            If the rate is ${t.unit === '$' ? '$'+rate : rate+' '+t.unit} per 1 unit of the independent variable.<br><br>
-            <strong>Question:</strong> What is the dependent value when the independent value is ${qMulti}?`;
-            document.getElementById('p3-scenario').innerHTML = scenarioHTML;
+            document.getElementById('p3-scenario').innerHTML = `
+                <span style="color:var(--gray); font-size: 1rem; text-transform:uppercase;">Context: ${t.context}</span><br>
+                The rate is exactly <strong>${t.unit === '$' ? '$'+rate : rate+' '+t.unit}</strong> per 1 unit of the independent variable.<br><br>
+                Determine the dependent value when the independent value is <strong>${qMulti}</strong>, and analyze the constraints.`;
 
-            // Inject TWR Frame
-            let twrHTML = `
+            document.getElementById('p3-twr').innerHTML = `
                 <p>
-                    <strong>Because</strong> the rate is exactly <input type="number" id="twr-rate" class="twr-input" placeholder="?"> per unit, 
-                    having ${qMulti} units means the total is <input type="number" id="twr-total" class="twr-input" placeholder="?">.
+                    <strong>Because</strong> the rate is exactly <input type="number" id="twr-rate" class="twr-input" placeholder="rate"> per unit, 
+                    having ${qMulti} units means the total is <input type="number" id="twr-total" class="twr-input" placeholder="total">.
                 </p>
                 <p>
-                    <strong>But</strong> if the dependent limit was strictly ${t.unit === '$' ? '$'+constraintCost : constraintCost+' '+t.unit}, 
-                    the maximum independent units allowed would only be <input type="number" id="twr-limit" class="twr-input" placeholder="?">.
+                    <strong>But</strong> if the dependent limit was capped at ${t.unit === '$' ? '$'+constraintCost : constraintCost+' '+t.unit}, 
+                    the maximum independent units allowed would only be <input type="number" id="twr-limit" class="twr-input" placeholder="limit">.
                 </p>
                 <p>
-                    <strong>So</strong>, the dependent variable relies entirely on the 
+                    <strong>So</strong>, the dependent variable strictly relies on the 
                     <select id="twr-ind" class="twr-select">
-                        <option value="none">-- select --</option>
+                        <option value="none">-- select variable --</option>
                         <option value="ind">${t.indLabel}</option>
                         <option value="dep">${t.depLabel}</option>
                     </select>.
                 </p>
             `;
-            document.getElementById('p3-twr').innerHTML = twrHTML;
         }
 
         function checkPhase3() {
@@ -769,26 +670,17 @@
 
             if(ansRate === d.rate && ansTotal === d.totalCost && ansLimit === d.constraintMulti && ansInd === 'ind') {
                 addXP(500);
-                showToast("+500 XP! Mastery achieved. Generating new scenario...", true);
+                showToast("+500 XP! Mastery achieved. Synthesizing new scenario...", true);
                 
-                // Add a small celebration effect
                 document.getElementById('phase-3').style.transform = "scale(1.02)";
                 setTimeout(() => { document.getElementById('phase-3').style.transform = "scale(1)"; }, 200);
 
-                setTimeout(() => {
-                    generateProceduralQuestion();
-                }, 1500);
+                setTimeout(() => { generateProceduralQuestion(); }, 1500);
             } else {
                 resetStreak();
-                showToast("Careful. Review your calculations and variable choices.", false);
+                showToast("System error. Review your calculations and variable logic.", false);
             }
         }
-
-        // --- INIT ---
-        window.onload = () => {
-            initPhase1();
-            updateHUD();
-        };
 
     </script>
 </body>
