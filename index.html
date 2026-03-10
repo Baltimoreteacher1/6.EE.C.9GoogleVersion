@@ -31,44 +31,40 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            user-select: none; /* Prevents accidental text selection during drag */
+            user-select: none;
         }
 
         /* =========================================================
            2. BOOT SCREEN & CO-OP OVERLAY
            ========================================================= */
         #boot-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--navy);
-            z-index: 5000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: var(--white);
-            transition: opacity 0.5s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--navy); z-index: 5000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: var(--white); transition: opacity 0.5s ease;
         }
 
-        .mode-container {
-            display: flex; gap: 2rem; margin-top: 3rem;
-        }
+        .mode-container { display: flex; gap: 2rem; margin-top: 3rem; }
 
         .mode-card {
             background: rgba(255,255,255,0.05);
-            border: 2px solid var(--teal);
-            border-radius: 12px;
-            padding: 2rem;
-            width: 250px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
+            border: 2px solid var(--teal); border-radius: 12px;
+            padding: 2.5rem 2rem; width: 280px; text-align: center;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .mode-card:hover {
+            background: var(--teal); transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 150, 136, 0.4);
         }
 
-        .mode-card:hover {
-            background: var(--teal);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 150, 136, 0.4);
+        #coop-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(38, 50, 56, 0.85); z-index: 6000; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(4px);
+        }
+        .modal-card {
+            background: var(--white); padding: 3rem; border-radius: 12px;
+            text-align: center; max-width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
         }
 
         /* =========================================================
@@ -76,18 +72,15 @@
            ========================================================= */
         #hud {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--hud-height);
-            background-color: var(--navy);
-            color: var(--white);
+            background-color: var(--navy); color: var(--white);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 3rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            z-index: 1000;
+            padding: 0 3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 1000;
         }
 
         .hud-stat { display: flex; flex-direction: column; align-items: center; }
         .hud-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--teal); }
         .hud-value { font-size: 1.3rem; font-weight: bold; }
-        .streak-glow { color: var(--coral); text-shadow: 0 0 12px rgba(255, 112, 67, 0.6); }
+        .streak-glow { color: var(--coral); text-shadow: 0 0 12px rgba(255, 112, 67, 0.8); }
 
         #app-container {
             margin-top: calc(var(--hud-height) + 2rem);
@@ -95,53 +88,55 @@
         }
 
         .phase-card {
-            background: var(--white);
-            border-radius: 12px;
+            background: var(--white); border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-            width: 100%; max-width: 1000px;
-            padding: 3rem;
+            width: 100%; max-width: 1000px; padding: 3rem;
             opacity: 0; transform: translateY(20px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            display: none;
+            transition: opacity 0.4s ease, transform 0.4s ease; display: none;
         }
-
         .phase-card.active { opacity: 1; transform: translateY(0); display: block; }
         h2 { color: var(--navy); margin-bottom: 0.5rem; font-size: 2rem; }
         .subtitle { color: var(--gray); font-family: var(--font-secondary); margin-bottom: 2.5rem; font-size: 1.1rem; }
 
         .btn {
-            background-color: var(--teal); color: var(--white);
-            border: none; padding: 14px 28px; border-radius: 8px;
-            font-size: 1.1rem; font-weight: bold; cursor: pointer;
-            transition: all 0.2s; font-family: var(--font-primary);
+            background-color: var(--teal); color: var(--white); border: none;
+            padding: 14px 28px; border-radius: 8px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; transition: all 0.2s; font-family: var(--font-primary);
         }
         .btn:hover { background-color: #00796B; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 150, 136, 0.3); }
         .btn-coral { background-color: var(--coral); }
         .btn-coral:hover { background-color: #E64A19; box-shadow: 0 4px 15px rgba(255, 112, 67, 0.3); }
+        .btn-outline { background-color: transparent; border: 2px solid var(--teal); color: var(--teal); }
+        .btn-outline:hover { background-color: var(--sand); transform: translateY(0); box-shadow: none; }
 
         /* =========================================================
-           4. PHASE 1: DRAG & DROP MATCHING
+           4. PHASE 1: SELECT & SLOT
            ========================================================= */
-        .dnd-container { display: flex; gap: 3rem; }
-        .dnd-bank { flex: 1; display: flex; flex-direction: column; gap: 1rem; background: var(--sand); padding: 1.5rem; border-radius: 8px; }
-        .dnd-targets { flex: 2; display: flex; flex-direction: column; gap: 1.5rem; }
-        
-        .draggable-card {
-            background: var(--white); border: 2px solid var(--teal); border-radius: 6px;
-            padding: 1rem; font-weight: bold; text-align: center; color: var(--navy);
-            cursor: grab; transition: transform 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        .term-bank {
+            display: flex; flex-wrap: wrap; gap: 1rem; padding: 1.5rem;
+            background: var(--sand); border-radius: 8px; margin-bottom: 2rem; justify-content: center;
         }
-        .draggable-card:active { cursor: grabbing; transform: scale(1.05); }
-        .draggable-card.matched { background: var(--teal); color: var(--white); cursor: default; }
+        .term-btn {
+            background: var(--white); border: 2px solid var(--teal); color: var(--teal);
+            padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 1rem;
+            cursor: pointer; transition: all 0.2s; font-family: var(--font-secondary);
+        }
+        .term-btn:hover { background: var(--teal); color: var(--white); }
+        .term-btn.active { background: var(--coral); border-color: var(--coral); color: var(--white); transform: scale(1.05); }
 
-        .drop-row { display: flex; align-items: center; gap: 1rem; background: var(--white); padding: 1rem; border-radius: 8px; border: 1px solid var(--gray); }
-        .drop-zone {
-            width: 200px; height: 50px; border: 2px dashed var(--gray); border-radius: 6px;
-            display: flex; justify-content: center; align-items: center; background: var(--sand);
-            transition: all 0.2s; color: var(--gray); font-size: 0.9rem;
+        .def-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 2rem;
+            padding: 1rem 1.5rem; border: 1px solid var(--gray); border-radius: 8px; margin-bottom: 1rem;
+            background: var(--white);
         }
-        .drop-zone.drag-over { border-color: var(--coral); background: rgba(255, 112, 67, 0.1); }
-        .def-text { flex: 1; font-family: var(--font-secondary); font-size: 1.05rem; line-height: 1.4; }
+        .def-text { flex: 1; font-family: var(--font-secondary); font-size: 1.1rem; line-height: 1.5; }
+        .def-slot {
+            width: 240px; height: 45px; border: 2px dashed var(--gray); border-radius: 6px;
+            display: flex; justify-content: center; align-items: center;
+            background: var(--sand); color: var(--navy); font-weight: bold; cursor: pointer; transition: all 0.2s;
+        }
+        .def-slot:hover { border-color: var(--teal); background: rgba(0, 150, 136, 0.1); }
+        .def-slot.filled { border: 2px solid var(--teal); background: rgba(0, 150, 136, 0.1); border-style: solid; }
 
         /* =========================================================
            5. PHASE 2: PRECISION SVG GRAPHING
@@ -153,42 +148,31 @@
         
         .svg-container {
             width: 100%; background: var(--white); border: 2px solid var(--sand);
-            border-radius: 8px; position: relative; cursor: crosshair; overflow: hidden;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+            border-radius: 8px; position: relative; cursor: crosshair;
         }
         
-        /* Ghost Crosshair & Tooltip */
-        .ghost-point { fill: rgba(255, 112, 67, 0.4); pointer-events: none; display: none; }
-        .ghost-label { font-family: var(--font-primary); font-size: 12px; font-weight: bold; fill: var(--navy); pointer-events: none; display: none; }
-        .axis-label { font-family: var(--font-primary); font-size: 14px; font-weight: bold; fill: var(--navy); }
-        .grid-label { font-family: var(--font-secondary); font-size: 11px; fill: var(--gray); }
+        .ghost-point { fill: rgba(255, 112, 67, 0.5); pointer-events: none; display: none; }
+        .ghost-label { font-family: var(--font-primary); font-size: 13px; font-weight: bold; fill: var(--navy); pointer-events: none; display: none; background: white; }
+        .axis-label { font-family: var(--font-primary); font-size: 14px; font-weight: bold; fill: var(--navy); pointer-events: none; }
+        .grid-label { font-family: var(--font-secondary); font-size: 11px; fill: var(--gray); pointer-events: none; }
 
         /* =========================================================
            6. PHASE 3: TWR ENGINE
            ========================================================= */
         .twr-frame { background: var(--sand); padding: 2.5rem; border-radius: 8px; border-left: 6px solid var(--teal); line-height: 2.4; font-size: 1.2rem; font-family: var(--font-secondary); }
         .twr-input {
-            border: none; border-bottom: 3px solid var(--navy); background: rgba(255,255,255,0.5);
+            border: none; border-bottom: 3px solid var(--navy); background: rgba(255,255,255,0.7);
             font-family: var(--font-primary); font-size: 1.2rem; color: var(--coral);
-            font-weight: bold; text-align: center; width: 130px; outline: none; transition: all 0.2s; padding: 2px 5px; border-radius: 4px 4px 0 0;
+            font-weight: bold; text-align: center; width: 100px; outline: none; transition: all 0.2s; padding: 2px 5px; border-radius: 4px 4px 0 0;
         }
-        .twr-input:focus { border-bottom-color: var(--coral); background: rgba(255,255,255,0.9); }
+        .twr-input:focus { border-bottom-color: var(--coral); background: var(--white); }
         .twr-select {
-            appearance: none; border: none; border-bottom: 3px solid var(--navy); background: rgba(255,255,255,0.5);
+            appearance: none; border: none; border-bottom: 3px solid var(--navy); background: rgba(255,255,255,0.7);
             font-family: var(--font-primary); font-size: 1.2rem; color: var(--teal);
             font-weight: bold; outline: none; cursor: pointer; padding: 2px 10px; border-radius: 4px 4px 0 0;
         }
 
-        /* =========================================================
-           7. MODALS & TOASTS
-           ========================================================= */
-        #coop-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(38, 50, 56, 0.9); z-index: 3000; display: none;
-            justify-content: center; align-items: center; backdrop-filter: blur(5px);
-        }
-        .modal-card { background: var(--white); padding: 3rem; border-radius: 12px; text-align: center; max-width: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-        
+        /* Toasts */
         #toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
             padding: 16px 32px; border-radius: 30px; color: var(--white); font-weight: bold; font-size: 1.1rem;
@@ -197,30 +181,29 @@
         #toast.show { transform: translateX(-50%) translateY(0); }
         .toast-success { background-color: var(--teal); }
         .toast-error { background-color: var(--coral); }
-
     </style>
 </head>
 <body>
 
     <div id="boot-screen">
-        <h1 style="font-size: 3rem; margin-bottom: 1rem; color: var(--teal);">HELIX-PREDICT</h1>
-        <p style="font-size: 1.2rem; color: var(--gray);">Module: Relationships & Graphs</p>
+        <h1 style="font-size: 3.5rem; margin-bottom: 1rem; color: var(--teal);">HELIX-PREDICT</h1>
+        <p style="font-size: 1.3rem; color: var(--gray); font-family: var(--font-secondary);">Module: Graphs & Relationships</p>
         <div class="mode-container">
-            <div class="mode-card" onclick="startGame('solo')">
-                <h3 style="color: var(--white); margin-bottom: 1rem;">Solo Agent</h3>
-                <p style="font-size: 0.9rem; color: var(--gray);">Standard individual assessment and practice protocol.</p>
+            <div class="mode-card" onclick="startApp('solo')">
+                <h3 style="color: var(--white); margin-bottom: 1rem; font-size: 1.5rem;">Solo Agent</h3>
+                <p style="font-size: 0.9rem; color: var(--gray); line-height: 1.5;">Standard individual assessment protocol.</p>
             </div>
-            <div class="mode-card" onclick="startGame('coop')">
-                <h3 style="color: var(--coral); margin-bottom: 1rem;">Pair Programming</h3>
-                <p style="font-size: 0.9rem; color: var(--gray);">Co-op mode. Requires dual-verification and communicative friction.</p>
+            <div class="mode-card" onclick="startApp('coop')">
+                <h3 style="color: var(--coral); margin-bottom: 1rem; font-size: 1.5rem;">Co-op Mode</h3>
+                <p style="font-size: 0.9rem; color: var(--gray); line-height: 1.5;">Pair programming. Engages communicative friction logic.</p>
             </div>
         </div>
     </div>
 
     <div id="coop-modal">
         <div class="modal-card">
-            <h2 style="color: var(--coral);">Partner Verification</h2>
-            <p style="margin: 1.5rem 0; font-size: 1.1rem; color: var(--gray);">Did both partners discuss this solution and agree on the final answer?</p>
+            <h2 style="color: var(--coral); margin-bottom: 1rem;">Partner Verification</h2>
+            <p style="margin-bottom: 2rem; font-size: 1.1rem; color: var(--navy); font-family: var(--font-secondary);">Did both partners discuss this solution and agree on the logic?</p>
             <div style="display: flex; gap: 1rem; justify-content: center;">
                 <button class="btn btn-outline" onclick="closeModal(false)">Wait, let's review</button>
                 <button class="btn btn-coral" onclick="closeModal(true)">Yes, we agree</button>
@@ -231,11 +214,11 @@
     <div id="hud">
         <div class="hud-stat">
             <span class="hud-label">Protocol</span>
-            <span class="hud-value" id="hud-protocol">Solo Agent</span>
+            <span class="hud-value" id="hud-protocol">Booting...</span>
         </div>
         <div class="hud-stat">
             <span class="hud-label">Phase</span>
-            <span class="hud-value" id="phase-indicator">1 : Foundation</span>
+            <span class="hud-value" id="phase-indicator">1 : Definitional</span>
         </div>
         <div class="hud-stat">
             <span class="hud-label">Streak</span>
@@ -251,23 +234,19 @@
         
         <div id="phase-1" class="phase-card">
             <h2>Phase 1: Establish the Baseline</h2>
-            <div class="subtitle">Drag the terminology cards into the correct definition drop zones.</div>
+            <div class="subtitle">Click a term in the bank, then click the correct empty slot to place it. Click a filled slot to return it.</div>
             
-            <div class="dnd-container" id="p1-content">
-                <div class="dnd-bank" id="drag-bank">
-                    </div>
-                <div class="dnd-targets" id="drop-targets">
-                    </div>
-            </div>
+            <div class="term-bank" id="term-bank"></div>
+            <div class="definitions-list" id="def-list"></div>
             
             <div style="margin-top: 2.5rem; text-align: right;">
-                <button id="btn-p1-check" class="btn">Verify System</button>
+                <button class="btn" onclick="checkPhase1()">Verify Definitions</button>
             </div>
         </div>
 
         <div id="phase-2" class="phase-card">
             <h2>Phase 2: Data to Visuals</h2>
-            <div class="subtitle">Hover over the coordinate plane to utilize the crosshair tracking. Click to plot the four points from the data table.</div>
+            <div class="subtitle">Analyze the table. Hover over the grid to snap to intersections. Plot the 4 points.</div>
             
             <div class="grid-2">
                 <div>
@@ -277,29 +256,27 @@
                     </table>
                 </div>
                 <div>
-                    <div class="svg-container" id="svg-wrapper">
-                        </div>
+                    <div class="svg-container" id="svg-wrapper"></div>
                 </div>
             </div>
 
             <div style="margin-top: 2.5rem; text-align: right;">
-                <button id="btn-p2-check" class="btn">Analyze Graph</button>
+                <button class="btn" onclick="checkPhase2()">Analyze Graph</button>
             </div>
         </div>
 
         <div id="phase-3" class="phase-card">
             <h2>Phase 3: The Mastery Engine</h2>
-            <div class="subtitle">Read the dynamic scenario, calculate the limits, and synthesize your reasoning.</div>
+            <div class="subtitle">Read the dynamic scenario, calculate the values, and synthesize your reasoning.</div>
             
             <div id="p3-scenario" style="font-size: 1.3rem; margin-bottom: 2rem; color: var(--navy); font-weight: bold; background: var(--paper); padding: 1.5rem; border-radius: 8px; border: 1px solid #E0E0E0;">
-                </div>
+            </div>
 
-            <div class="twr-frame" id="p3-twr">
-                </div>
+            <div class="twr-frame" id="p3-twr"></div>
 
             <div style="margin-top: 2.5rem; display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: var(--teal); font-size: 0.9rem; font-weight: bold;">Infinite Generation Mode Active</span>
-                <button id="btn-p3-check" class="btn btn-coral">Lock & Submit</button>
+                <span style="color: var(--teal); font-size: 0.9rem; font-weight: bold; text-transform: uppercase;">Infinite Generation Mode Active</span>
+                <button class="btn btn-coral" onclick="checkPhase3()">Lock & Submit</button>
             </div>
         </div>
 
@@ -310,11 +287,9 @@
 
     <script>
         const State = {
-            mode: 'solo', // 'solo' or 'coop'
-            xp: 0, streak: 0, currentPhase: 1,
-            pendingCheckCallback: null,
+            mode: 'solo', xp: 0, streak: 0, currentPhase: 1, pendingCheckCallback: null,
             p1: {
-                matches: 0, draggedItem: null,
+                selectedTerm: null,
                 pairs: [
                     { id: 't1', text: 'Independent Variable', def: 'The quantity that stands alone and isn\'t changed by the other.' },
                     { id: 't2', text: 'Dependent Variable', def: 'The quantity that changes based on another quantity.' },
@@ -325,15 +300,16 @@
             p2: {
                 data: [ { x: 1, y: 1200 }, { x: 5, y: 6000 }, { x: 10, y: 12000 }, { x: 15, y: 18000 } ],
                 plottedPoints: [],
-                config: { width: 550, height: 400, pad: 50, xMax: 16, yMax: 20000, xStep: 4, yStep: 5 }
+                // Data-Aligned Matrix: 15 steps handles x=1 and y=1200 exactly.
+                config: { width: 550, height: 400, pad: 55, xMax: 15, yMax: 18000, xStep: 15, yStep: 15 }
             },
             p3: { currentData: {} }
         };
 
         // --- BOOT & CO-OP MECHANICS ---
-        function startGame(selectedMode) {
-            State.mode = selectedMode;
-            document.getElementById('hud-protocol').innerText = selectedMode === 'coop' ? 'Pair Programming' : 'Solo Agent';
+        function startApp(mode) {
+            State.mode = mode;
+            document.getElementById('hud-protocol').innerText = mode === 'coop' ? 'Pair Programming' : 'Solo Agent';
             document.getElementById('boot-screen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('boot-screen').style.display = 'none';
@@ -353,9 +329,7 @@
 
         function closeModal(agreed) {
             document.getElementById('coop-modal').style.display = 'none';
-            if (agreed && State.pendingCheckCallback) {
-                State.pendingCheckCallback();
-            }
+            if (agreed && State.pendingCheckCallback) State.pendingCheckCallback();
             State.pendingCheckCallback = null;
         }
 
@@ -368,97 +342,82 @@
             document.getElementById('phase-indicator').innerText = State.currentPhase === 1 ? "1 : Foundation" : State.currentPhase === 2 ? "2 : Visual Model" : "3 : Synthesis";
         }
 
-        function showToast(message, isSuccess) {
-            const toast = document.getElementById('toast');
-            toast.innerText = message;
-            toast.className = isSuccess ? 'toast-success show' : 'toast-error show';
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        function showToast(msg, success) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.className = success ? 'toast-success show' : 'toast-error show';
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        function switchPhase(newPhase) {
+        function switchPhase(phase) {
             document.querySelectorAll('.phase-card').forEach(c => c.classList.remove('active'));
-            State.currentPhase = newPhase;
-            document.getElementById(`phase-${State.currentPhase}`).classList.add('active');
+            State.currentPhase = phase;
+            document.getElementById(`phase-${phase}`).classList.add('active');
             updateHUD();
         }
 
-        function addXP(amount) { State.xp += amount; State.streak++; updateHUD(); }
+        function addXP(amt) { State.xp += amount; State.streak++; updateHUD(); }
         function resetStreak() { State.streak = 0; updateHUD(); }
 
-        // --- PHASE 1: DRAG AND DROP ---
+        // --- PHASE 1: SELECT & SLOT ---
         function initPhase1() {
-            const bank = document.getElementById('drag-bank');
-            const targets = document.getElementById('drop-targets');
-            bank.innerHTML = '<div style="color:var(--gray); font-size:0.9rem; margin-bottom:1rem; text-align:center;">TERMINOLOGY BANK</div>';
-            targets.innerHTML = '';
+            const bank = document.getElementById('term-bank');
+            const defs = document.getElementById('def-list');
+            bank.innerHTML = ''; defs.innerHTML = '';
 
-            const terms = [...State.p1.pairs].sort(() => Math.random() - 0.5);
-            const defs = [...State.p1.pairs].sort(() => Math.random() - 0.5);
-
-            terms.forEach(t => {
-                const el = document.createElement('div');
-                el.className = 'draggable-card';
-                el.draggable = true;
-                el.innerText = t.text;
-                el.dataset.id = t.id;
-                el.addEventListener('dragstart', e => {
-                    State.p1.draggedItem = el;
-                    setTimeout(() => el.style.opacity = '0.5', 0);
-                });
-                el.addEventListener('dragend', e => {
-                    el.style.opacity = '1';
-                    State.p1.draggedItem = null;
-                });
-                bank.appendChild(el);
+            State.p1.pairs.forEach(p => {
+                let btn = document.createElement('button');
+                btn.className = 'term-btn'; btn.innerText = p.text; btn.dataset.id = p.id;
+                btn.onclick = () => {
+                    document.querySelectorAll('.term-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    State.p1.selectedTerm = { id: p.id, text: p.text, el: btn };
+                };
+                bank.appendChild(btn);
             });
 
-            defs.forEach(d => {
-                const row = document.createElement('div');
-                row.className = 'drop-row';
-                row.innerHTML = `
-                    <div class="def-text">${d.def}</div>
-                    <div class="drop-zone" data-match="${d.id}">Drop Here</div>
-                `;
-                targets.appendChild(row);
-            });
-
-            document.querySelectorAll('.drop-zone').forEach(zone => {
-                zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-                zone.addEventListener('dragleave', e => { zone.classList.remove('drag-over'); });
-                zone.addEventListener('drop', e => {
-                    e.preventDefault();
-                    zone.classList.remove('drag-over');
-                    if (State.p1.draggedItem) {
-                        // Check match logic immediately on drop for tactile feedback
-                        if(State.p1.draggedItem.dataset.id === zone.dataset.match) {
-                            zone.innerHTML = '';
-                            zone.appendChild(State.p1.draggedItem);
-                            State.p1.draggedItem.draggable = false;
-                            State.p1.draggedItem.classList.add('matched');
-                            zone.style.border = '2px solid var(--teal)';
-                            State.p1.matches++;
-                        } else {
-                            showToast("Incorrect match. Try again.", false);
-                            resetStreak();
-                        }
+            // Randomize definitions
+            [...State.p1.pairs].sort(()=>Math.random()-0.5).forEach(p => {
+                let row = document.createElement('div');
+                row.className = 'def-row';
+                row.innerHTML = `<div class="def-text">${p.def}</div><div class="def-slot" data-match="${p.id}"></div>`;
+                row.querySelector('.def-slot').onclick = function() {
+                    if (State.p1.selectedTerm && !this.innerText) {
+                        this.innerText = State.p1.selectedTerm.text;
+                        this.dataset.filledId = State.p1.selectedTerm.id;
+                        this.classList.add('filled');
+                        State.p1.selectedTerm.el.style.display = 'none';
+                        State.p1.selectedTerm = null;
+                        document.querySelectorAll('.term-btn').forEach(b => b.classList.remove('active'));
+                    } else if (this.innerText) {
+                        document.querySelector(`.term-btn[data-id='${this.dataset.filledId}']`).style.display = 'inline-block';
+                        this.innerText = '';
+                        this.dataset.filledId = '';
+                        this.classList.remove('filled');
                     }
-                });
+                };
+                defs.appendChild(row);
             });
-
-            document.getElementById('btn-p1-check').onclick = () => {
-                requestCheck(() => {
-                    if (State.p1.matches === 4) {
-                        addXP(100);
-                        showToast("Foundation Verified! Moving to Phase 2.", true);
-                        setTimeout(() => { switchPhase(2); initPhase2(); }, 1500);
-                    } else {
-                        showToast("Complete all matches first.", false);
-                    }
-                });
-            };
         }
 
-        // --- PHASE 2: PRECISION GRAPHING ---
+        function checkPhase1() {
+            requestCheck(() => {
+                let correct = 0;
+                document.querySelectorAll('.def-slot').forEach(slot => {
+                    if(slot.dataset.match === slot.dataset.filledId) correct++;
+                });
+
+                if (correct === 4) {
+                    State.xp += 100; State.streak++; updateHUD();
+                    showToast("Foundation Verified! Moving to Phase 2.", true);
+                    setTimeout(() => { switchPhase(2); initPhase2(); }, 1500);
+                } else {
+                    resetStreak();
+                    showToast(`Incorrect logic. ${correct}/4 correct. Try again.`, false);
+                }
+            });
+        }
+
+        // --- PHASE 2: PRECISION SVG GRAPHING ---
         function initPhase2() {
             const table = document.getElementById('p2-table');
             while(table.rows.length > 1) { table.deleteRow(1); }
@@ -467,11 +426,7 @@
                 tr.insertCell().innerText = pt.x;
                 tr.insertCell().innerText = pt.y.toLocaleString();
             });
-
             renderSVG();
-            document.getElementById('btn-p2-check').onclick = () => {
-                requestCheck(checkPhase2);
-            };
         }
 
         function mapToScreen(val, max, screenDim, isY, c) {
@@ -489,41 +444,44 @@
         function renderSVG() {
             const c = State.p2.config;
             let svg = `<svg id="math-plane" width="${c.width}" height="${c.height}">`;
-            
             const graphW = c.width - (c.pad * 2);
             const graphH = c.height - (c.pad * 2);
 
-            // Grid Lines
+            // Dynamic Matrix Grid
             for(let i=0; i<=c.yStep; i++) {
                 const yPos = c.height - c.pad - (i * (graphH / c.yStep));
                 const yVal = Math.round(i * (c.yMax / c.yStep));
-                svg += `<line x1="${c.pad}" y1="${yPos}" x2="${c.width-c.pad}" y2="${yPos}" stroke="var(--sand)" stroke-width="1"/>`;
-                svg += `<text class="grid-label" x="${c.pad - 8}" y="${yPos + 4}" text-anchor="end">${yVal}</text>`;
+                svg += `<line x1="${c.pad}" y1="${yPos}" x2="${c.width-c.pad}" y2="${yPos}" stroke="${i===0?'none':'var(--sand)'}" stroke-width="1"/>`;
+                // Label specifically to show (1, 1200) and major marks
+                if (i % 5 === 0 || i === 1) { 
+                    svg += `<text class="grid-label" x="${c.pad - 8}" y="${yPos + 4}" text-anchor="end">${yVal}</text>`;
+                }
             }
             for(let i=0; i<=c.xStep; i++) {
                 const xPos = c.pad + (i * (graphW / c.xStep));
                 const xVal = Math.round(i * (c.xMax / c.xStep));
-                svg += `<line x1="${xPos}" y1="${c.pad}" x2="${xPos}" y2="${c.height-c.pad}" stroke="var(--sand)" stroke-width="1"/>`;
-                svg += `<text class="grid-label" x="${xPos}" y="${c.height - c.pad + 18}" text-anchor="middle">${xVal}</text>`;
+                svg += `<line x1="${xPos}" y1="${c.pad}" x2="${xPos}" y2="${c.height-c.pad}" stroke="${i===0?'none':'var(--sand)'}" stroke-width="1"/>`;
+                if (i % 5 === 0 || i === 1) {
+                    svg += `<text class="grid-label" x="${xPos}" y="${c.height - c.pad + 18}" text-anchor="middle">${xVal}</text>`;
+                }
             }
 
             // Axes
             svg += `<line x1="${c.pad}" y1="${c.pad}" x2="${c.pad}" y2="${c.height-c.pad}" stroke="var(--navy)" stroke-width="2"/>`;
             svg += `<line x1="${c.pad}" y1="${c.height-c.pad}" x2="${c.width-c.pad}" y2="${c.height-c.pad}" stroke="var(--navy)" stroke-width="2"/>`;
-
-            // Axis Labels
             svg += `<text class="axis-label" x="${c.width/2}" y="${c.height - 10}" text-anchor="middle">Time (minutes)</text>`;
             svg += `<text class="axis-label" x="15" y="${c.height/2}" text-anchor="middle" transform="rotate(-90 15,${c.height/2})">Distance (feet)</text>`;
 
             // Plotted Points
-            State.p2.plottedPoints.forEach((pt, index) => {
+            State.p2.plottedPoints.forEach((pt, idx) => {
                 const sx = mapToScreen(pt.x, c.xMax, c.width, false, c);
                 const sy = mapToScreen(pt.y, c.yMax, c.height, true, c);
-                svg += `<circle cx="${sx}" cy="${sy}" r="7" fill="var(--coral)" class="plotted-pt" data-idx="${index}" style="cursor:pointer; stroke:var(--white); stroke-width:2px;"/>`;
+                svg += `<circle cx="${sx}" cy="${sy}" r="7" fill="var(--coral)" class="plotted-pt" data-idx="${idx}" style="cursor:pointer; stroke:var(--white); stroke-width:2px;"/>`;
             });
 
-            // Ghost Point (Dynamic precision affordance)
-            svg += `<circle id="ghost-pt" class="ghost-point" cx="0" cy="0" r="7"/>`;
+            // Precision Hover Crosshair
+            svg += `<circle id="ghost-pt" class="ghost-point" cx="0" cy="0" r="8"/>`;
+            svg += `<rect id="ghost-bg" fill="white" opacity="0.8" rx="4" style="display:none; pointer-events:none;"/>`;
             svg += `<text id="ghost-lbl" class="ghost-label" x="0" y="0" text-anchor="middle"></text>`;
 
             svg += `</svg>`;
@@ -532,59 +490,66 @@
             const svgEl = document.getElementById('math-plane');
             svgEl.addEventListener('mousemove', handleSVGMove);
             svgEl.addEventListener('click', handleSVGClick);
+            svgEl.addEventListener('mouseleave', () => {
+                document.getElementById('ghost-pt').style.display = 'none';
+                document.getElementById('ghost-lbl').style.display = 'none';
+                document.getElementById('ghost-bg').style.display = 'none';
+            });
         }
 
         function handleSVGMove(e) {
             const c = State.p2.config;
-            const svgEl = document.getElementById('math-plane');
-            const rect = svgEl.getBoundingClientRect();
+            const rect = document.getElementById('math-plane').getBoundingClientRect();
             const px = e.clientX - rect.left;
             const py = e.clientY - rect.top;
 
             let dataX = mapToData(px, c.xMax, c.width, false, c);
             let dataY = mapToData(py, c.yMax, c.height, true, c);
 
-            // Precision Snap Math: X to nearest 1, Y to nearest 600 (aligns with 1200 rate)
-            dataX = Math.round(dataX);
-            dataY = Math.round(dataY / 600) * 600;
+            // Data-Aligned Snapping (15x15 Matrix)
+            dataX = Math.round(dataX); 
+            dataY = Math.round(dataY / 1200) * 1200;
 
             const ghostPt = document.getElementById('ghost-pt');
             const ghostLbl = document.getElementById('ghost-lbl');
+            const ghostBg = document.getElementById('ghost-bg');
 
-            if(dataX >= 0 && dataX <= c.xMax && dataY >= 0 && dataY <= c.yMax) {
+            if(dataX >= 0 && dataX <= c.xMax && dataY >= 0 && dataY <= c.yMax && px > c.pad-10 && py < c.height-c.pad+10) {
                 const gx = mapToScreen(dataX, c.xMax, c.width, false, c);
                 const gy = mapToScreen(dataY, c.yMax, c.height, true, c);
                 
-                ghostPt.setAttribute('cx', gx);
-                ghostPt.setAttribute('cy', gy);
+                ghostPt.setAttribute('cx', gx); ghostPt.setAttribute('cy', gy);
                 ghostPt.style.display = 'block';
 
                 ghostLbl.textContent = `(${dataX}, ${dataY})`;
-                ghostLbl.setAttribute('x', gx);
-                ghostLbl.setAttribute('y', gy - 15);
+                ghostLbl.setAttribute('x', gx); ghostLbl.setAttribute('y', gy - 15);
                 ghostLbl.style.display = 'block';
+
+                // Background for readability
+                ghostBg.setAttribute('x', gx - 35); ghostBg.setAttribute('y', gy - 30);
+                ghostBg.setAttribute('width', 70); ghostBg.setAttribute('height', 20);
+                ghostBg.style.display = 'block';
             } else {
-                ghostPt.style.display = 'none';
-                ghostLbl.style.display = 'none';
+                ghostPt.style.display = 'none'; ghostLbl.style.display = 'none'; ghostBg.style.display = 'none';
             }
         }
 
         function handleSVGClick(e) {
             if (e.target.tagName === 'circle' && e.target.id !== 'ghost-pt') {
-                const idx = parseInt(e.target.getAttribute('data-idx'));
-                State.p2.plottedPoints.splice(idx, 1);
-                renderSVG();
-                return;
+                State.p2.plottedPoints.splice(parseInt(e.target.getAttribute('data-idx')), 1);
+                renderSVG(); return;
             }
 
             const ghostLbl = document.getElementById('ghost-lbl');
             if (ghostLbl.style.display === 'block') {
                 const txt = ghostLbl.textContent.replace(/[()]/g, '').split(',');
-                const dataX = parseInt(txt[0]);
-                const dataY = parseInt(txt[1]);
+                const px = parseInt(txt[0]); const py = parseInt(txt[1]);
+
+                // Prevent duplicates
+                if(State.p2.plottedPoints.some(p => p.x === px && p.y === py)) return;
 
                 if (State.p2.plottedPoints.length < 4) {
-                    State.p2.plottedPoints.push({x: dataX, y: dataY});
+                    State.p2.plottedPoints.push({x: px, y: py});
                     renderSVG();
                 } else {
                     showToast("Capacity reached. Click a point to remove it.", false);
@@ -593,95 +558,88 @@
         }
 
         function checkPhase2() {
-            if (State.p2.plottedPoints.length !== 4) {
-                showToast("Please plot exactly 4 points.", false);
-                return;
-            }
-            let correctCount = 0;
-            State.p2.plottedPoints.forEach(p => {
-                if(State.p2.data.find(d => d.x === p.x && d.y === p.y)) correctCount++;
+            requestCheck(() => {
+                if (State.p2.plottedPoints.length !== 4) { showToast("Plot exactly 4 points.", false); return; }
+                
+                let correctCount = 0;
+                State.p2.plottedPoints.forEach(p => {
+                    if(State.p2.data.find(d => d.x === p.x && d.y === p.y)) correctCount++;
+                });
+
+                if (correctCount === 4) {
+                    State.xp += 250; State.streak++; updateHUD();
+                    showToast("Visual Model Verified! Initializing TWR Engine.", true);
+                    setTimeout(() => { switchPhase(3); initPhase3(); }, 1500);
+                } else {
+                    resetStreak(); showToast(`Mismatch. ${correctCount}/4 points are correct.`, false);
+                }
             });
-
-            if (correctCount === 4) {
-                addXP(250);
-                showToast("Visual Model Verified! Initializing TWR Engine.", true);
-                setTimeout(() => { switchPhase(3); initPhase3(); }, 1500);
-            } else {
-                resetStreak();
-                showToast(`Calculations mismatch. ${correctCount}/4 points are correct.`, false);
-            }
         }
 
-        // --- PHASE 3: TWR PROCEDURAL ENGINE ---
-        function initPhase3() {
-            generateProceduralQuestion();
-            document.getElementById('btn-p3-check').onclick = () => {
-                requestCheck(checkPhase3);
-            };
-        }
+        // --- PHASE 3: PROCEDURAL TWR ENGINE ---
+        function initPhase3() { generateProceduralQuestion(); }
 
         function generateProceduralQuestion() {
             const types = [
-                { context: "Ticket Cost", indLabel: "number of tickets", depLabel: "total cost", min: 20, max: 60, unit: "$" },
-                { context: "Savings Account", indLabel: "months saved", depLabel: "total saved", min: 25, max: 150, unit: "$" },
-                { context: "Tram Travel", indLabel: "minutes traveled", depLabel: "distance traveled", min: 500, max: 1500, unit: "ft" }
+                { context: "Football Tickets", ind: "number of tickets", dep: "total cost", min: 20, max: 65, unit: "$" },
+                { context: "Savings Account", ind: "months saved", dep: "total saved", min: 25, max: 150, unit: "$" },
+                { context: "Tram Travel", ind: "minutes traveled", dep: "distance traveled", min: 500, max: 1500, unit: "ft" }
             ];
 
             const t = types[Math.floor(Math.random() * types.length)];
             const rate = Math.floor(Math.random() * (t.max - t.min + 1)) + t.min;
-            const qMulti = Math.floor(Math.random() * 8) + 3; // 3 to 10
-            const constraintMulti = qMulti - (Math.floor(Math.random()*2)+1); 
+            const qMulti = Math.floor(Math.random() * 7) + 3; // 3 to 9
             const totalCost = rate * qMulti;
+            const constraintMulti = qMulti - 2; 
             const constraintCost = rate * constraintMulti;
 
             State.p3.currentData = { type: t, rate: rate, totalCost: totalCost, constraintMulti: constraintMulti };
 
             document.getElementById('p3-scenario').innerHTML = `
-                <span style="color:var(--gray); font-size: 1rem; text-transform:uppercase;">Context: ${t.context}</span><br>
+                <span style="color:var(--gray); font-size: 1rem; text-transform:uppercase;">Scenario: ${t.context}</span><br>
                 The rate is exactly <strong>${t.unit === '$' ? '$'+rate : rate+' '+t.unit}</strong> per 1 unit of the independent variable.<br><br>
-                Determine the dependent value when the independent value is <strong>${qMulti}</strong>, and analyze the constraints.`;
+                Determine the dependent value when the independent value is <strong>${qMulti}</strong>.`;
 
             document.getElementById('p3-twr').innerHTML = `
                 <p>
-                    <strong>Because</strong> the rate is exactly <input type="number" id="twr-rate" class="twr-input" placeholder="rate"> per unit, 
+                    <strong>Because</strong> the rate is <input type="number" id="twr-rate" class="twr-input" placeholder="rate"> per unit, 
                     having ${qMulti} units means the total is <input type="number" id="twr-total" class="twr-input" placeholder="total">.
                 </p>
                 <p>
-                    <strong>But</strong> if the dependent limit was capped at ${t.unit === '$' ? '$'+constraintCost : constraintCost+' '+t.unit}, 
-                    the maximum independent units allowed would only be <input type="number" id="twr-limit" class="twr-input" placeholder="limit">.
+                    <strong>But</strong> if the limit was capped at ${t.unit === '$' ? '$'+constraintCost : constraintCost+' '+t.unit}, 
+                    the max independent units allowed is <input type="number" id="twr-limit" class="twr-input" placeholder="limit">.
                 </p>
                 <p>
                     <strong>So</strong>, the dependent variable strictly relies on the 
                     <select id="twr-ind" class="twr-select">
                         <option value="none">-- select variable --</option>
-                        <option value="ind">${t.indLabel}</option>
-                        <option value="dep">${t.depLabel}</option>
+                        <option value="ind">${t.ind}</option>
+                        <option value="dep">${t.dep}</option>
                     </select>.
                 </p>
             `;
         }
 
         function checkPhase3() {
-            const d = State.p3.currentData;
-            const ansRate = parseInt(document.getElementById('twr-rate').value);
-            const ansTotal = parseInt(document.getElementById('twr-total').value);
-            const ansLimit = parseInt(document.getElementById('twr-limit').value);
-            const ansInd = document.getElementById('twr-ind').value;
+            requestCheck(() => {
+                const d = State.p3.currentData;
+                const ansRate = parseInt(document.getElementById('twr-rate').value);
+                const ansTotal = parseInt(document.getElementById('twr-total').value);
+                const ansLimit = parseInt(document.getElementById('twr-limit').value);
+                const ansInd = document.getElementById('twr-ind').value;
 
-            if(ansRate === d.rate && ansTotal === d.totalCost && ansLimit === d.constraintMulti && ansInd === 'ind') {
-                addXP(500);
-                showToast("+500 XP! Mastery achieved. Synthesizing new scenario...", true);
-                
-                document.getElementById('phase-3').style.transform = "scale(1.02)";
-                setTimeout(() => { document.getElementById('phase-3').style.transform = "scale(1)"; }, 200);
-
-                setTimeout(() => { generateProceduralQuestion(); }, 1500);
-            } else {
-                resetStreak();
-                showToast("System error. Review your calculations and variable logic.", false);
-            }
+                if(ansRate === d.rate && ansTotal === d.totalCost && ansLimit === d.constraintMulti && ansInd === 'ind') {
+                    State.xp += 500; State.streak++; updateHUD();
+                    showToast("+500 XP! Mastery achieved. Synthesizing new scenario...", true);
+                    
+                    document.getElementById('phase-3').style.transform = "scale(1.02)";
+                    setTimeout(() => { document.getElementById('phase-3').style.transform = "scale(1)"; }, 200);
+                    setTimeout(() => { generateProceduralQuestion(); }, 1500);
+                } else {
+                    resetStreak(); showToast("System error. Review your calculations and logic.", false);
+                }
+            });
         }
-
     </script>
 </body>
 </html>
