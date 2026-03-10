@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HELIX-PREDICT: Relationships & Graphs</title>
+    <style>
+        /* =========================================================
+           1. MASTER DESIGN SYSTEM (MODERN BOHO)
+           ========================================================= */
+        :root {
+            --navy: #263238;
+            --teal: #009688;
+            --coral: #FF7043;
+            --paper: #FFFDE7;
+            --sand: #F5F5F5;
+            --white: #FFFFFF;
+            --gray: #9E9E9E;
+            --dark-text: #333333;
+            --font-primary: 'Montserrat', system-ui, -apple-system, sans-serif;
+            --font-secondary: 'Century Gothic', system-ui, -apple-system, sans-serif;
+            --hud-height: 60px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--paper);
+            color: var(--dark-text);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* =========================================================
+           2. ENTERPRISE HUD & UI POLISH
+           ========================================================= */
+        #hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--hud-height);
+            background-color: var(--navy);
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .hud-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hud-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--teal);
+        }
+
+        .hud-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .streak-glow {
+            color: var(--coral);
+            text-shadow: 0 0 10px rgba(255, 112, 67, 0.5);
+        }
+
+        /* =========================================================
+           3. MAIN CONTAINER & MICRO-TRANSITIONS
+           ========================================================= */
+        #app-container {
+            margin-top: calc(var(--hud-height) + 2rem);
+            padding: 1rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .phase-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 900px;
+            padding: 2.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            display: none;
+        }
+
+        .phase-card.active {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+
+        h2 {
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-family: var(--font-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        /* =========================================================
+           4. INTERACTIVE COMPONENTS
+           ========================================================= */
+        .btn {
+            background-color: var(--teal);
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-family: var(--font-primary);
+        }
+
+        .btn:hover {
+            background-color: #00796B;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-coral {
+            background-color: var(--coral);
+        }
+        .btn-coral:hover {
+            background-color: #E64A19;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--teal);
+            color: var(--teal);
+        }
+        .btn-outline:hover {
+            background-color: var(--sand);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Phase 1: Definitional Match */
+        .match-container {
+            display: flex;
+            gap: 2rem;
+            justify-content: space-between;
+        }
+        .match-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .match-item {
+            padding: 1rem;
+            border: 2px solid var(--sand);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-family: var(--font-secondary);
+        }
+        .match-item:hover {
+            border-color: var(--teal);
+            background-color: var(--sand);
+        }
+        .match-item.selected {
+            border-color: var(--coral);
+            background-color: rgba(255, 112, 67, 0.1);
+            font-weight: bold;
+        }
+        .match-item.locked {
+            border-color: var(--teal);
+            background-color: rgba(0, 150, 136, 0.1);
+            cursor: default;
+            color: var(--teal);
+            pointer-events: none;
+        }
+
+        /* Phase 2: SVG Plotting */
+        .svg-container {
+            width: 100%;
+            background: var(--white);
+            border: 1px solid var(--sand);
+            border-radius: 8px;
+            position: relative;
+            cursor: crosshair;
+            user-select: none;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        .data-table th {
+            background-color: var(--navy);
+            color: var(--white);
+            padding: 10px;
+            text-align: center;
+        }
+        .data-table td {
+            border: 1px solid var(--gray);
+            padding: 10px;
+            text-align: center;
+            font-family: var(--font-secondary);
+        }
+
+        /* Phase 3: TWR Framework */
+        .twr-frame {
+            background: var(--sand);
+            padding: 2rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--teal);
+            line-height: 2.2;
+            font-size: 1.1rem;
+            font-family: var(--font-secondary);
+        }
+        .twr-input {
+            border: none;
+            border-bottom: 2px solid var(--navy);
+            background: transparent;
+            font-family: var(--font-primary);
+            font-size: 1.1rem;
+            color: var(--coral);
+            font-weight: bold;
+            text-align: center;
+            width: 120px;
+            outline: none;
+            transition: border-color 0.2s;
+            padding: 0 5px;
+        }
+        .twr-input:focus {
+            border-bottom-color: var(--coral);
+        }
+        .twr-select {
+            appearance: none;
+            border: none;
+            border-bottom: 2px solid var(--navy);
+            background: transparent;
+            font-family: var(--font-primary);
+            font-size: 1.1rem;
+            color: var(--teal);
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        /* Feedback Toast */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 12px 24px;
+            border-radius: 30px;
+            color: var(--white);
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2000;
+        }
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast-success { background-color: var(--teal); }
+        .toast-error { background-color: var(--coral); }
+
+        .footer {
+            text-align: right;
+            padding: 1rem 2rem;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="hud">
+        <div class="hud-stat">
+            <span class="hud-label">Module</span>
+            <span class="hud-value">LearningOS • Math 6</span>
+        </div>
+        <div class="hud-stat">
+            <span class="hud-label">Phase</span>
+            <span class="hud-value" id="phase-indicator">1 : Definitional</span>
+        </div>
+        <div class="hud-stat">
+            <span class="hud-label">Streak</span>
+            <span class="hud-value" id="streak-counter">0</span>
+        </div>
+        <div class="hud-stat">
+            <span class="hud-label">Mastery XP</span>
+            <span class="hud-value" id="xp-counter">0</span>
+        </div>
+    </div>
+
+    <div id="app-container">
+        
+        <div id="phase-1" class="phase-card active">
+            <h2>Phase 1: Establish the Baseline</h2>
+            <div class="subtitle">Match the variables and terminology to build your foundation.</div>
+            
+            <div id="p1-content">
+                </div>
+            
+            <div style="margin-top: 2rem; text-align: right;">
+                <button id="btn-p1-check" class="btn">Check Matches</button>
+            </div>
+        </div>
+
+        <div id="phase-2" class="phase-card">
+            <h2>Phase 2: Data to Visuals</h2>
+            <div class="subtitle">Analyze the table and plot the corresponding coordinates. Click the grid intersections to plot points. Click a plotted point to remove it.</div>
+            
+            <div class="grid-2">
+                <div>
+                    <h3 style="color:var(--navy); margin-bottom: 1rem; font-size: 1.1rem;">Tramway Distance Over Time</h3>
+                    <table class="data-table" id="p2-table">
+                        <tr><th>Time (x)</th><th>Distance (y)</th></tr>
+                        </table>
+                </div>
+                <div>
+                    <div class="svg-container" id="svg-wrapper">
+                        </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: right;">
+                <button id="btn-p2-check" class="btn">Verify Graph</button>
+            </div>
+        </div>
+
+        <div id="phase-3" class="phase-card">
+            <h2>Phase 3: The Mastery Engine</h2>
+            <div class="subtitle">Analyze the scenario, calculate the values, and synthesize your reasoning.</div>
+            
+            <div id="p3-scenario" style="font-size: 1.2rem; margin-bottom: 1.5rem; color: var(--navy); font-weight: 500;">
+                </div>
+
+            <div class="twr-frame" id="p3-twr">
+                </div>
+
+            <div style="margin-top: 2rem; display: flex; justify-content: space-between;">
+                <span style="color: var(--gray); font-size: 0.9rem; align-self: flex-end;">Infinite Generation Mode Active</span>
+                <button id="btn-p3-check" class="btn btn-coral">Lock & Submit</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">Neft | 6th Grade Math</div>
+    <div id="toast"></div>
+
+    <script>
+        /**
+         * HELIX-PREDICT: Interactive State Machine & Procedural Engine
+         * Architecture: Deterministic DOM manipulation, pure SVG math rendering.
+         */
+
+        // --- STATE MANAGEMENT ---
+        const State = {
+            xp: 0,
+            streak: 0,
+            currentPhase: 1,
+            p1: {
+                selectedTerm: null,
+                selectedDef: null,
+                matches: 0,
+                pairs: [
+                    { id: 't1', text: 'Independent Variable', matchId: 'd1', def: 'The quantity that stands alone and isn\'t changed by the other.' },
+                    { id: 't2', text: 'Dependent Variable', matchId: 'd2', def: 'The quantity that changes based on another quantity.' },
+                    { id: 't3', text: 'x-axis', matchId: 'd3', def: 'The horizontal axis on a coordinate plane.' },
+                    { id: 't4', text: 'y-axis', matchId: 'd4', def: 'The vertical axis on a coordinate plane.' }
+                ],
+                locked: []
+            },
+            p2: {
+                data: [
+                    { x: 1, y: 1200 },
+                    { x: 5, y: 6000 },
+                    { x: 10, y: 12000 },
+                    { x: 15, y: 18000 }
+                ],
+                plottedPoints: [], // stores {x, y}
+                config: { width: 450, height: 350, pad: 40, xMax: 16, yMax: 20000, xStep: 4, yStep: 5 }
+            },
+            p3: {
+                scenarioType: 0, // 0: Tickets, 1: Savings, 2: Tramway
+                currentData: {}
+            }
+        };
+
+        // --- CORE UI FUNCTIONS ---
+        function updateHUD() {
+            document.getElementById('xp-counter').innerText = State.xp;
+            const streakEl = document.getElementById('streak-counter');
+            streakEl.innerText = State.streak + (State.streak >= 3 ? ' 🔥' : '');
+            if (State.streak >= 3) {
+                streakEl.classList.add('streak-glow');
+            } else {
+                streakEl.classList.remove('streak-glow');
+            }
+            document.getElementById('phase-indicator').innerText = 
+                State.currentPhase === 1 ? "1 : Definitional" :
+                State.currentPhase === 2 ? "2 : Visual Model" : "3 : Synthesis";
+        }
+
+        function showToast(message, isSuccess) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.className = isSuccess ? 'toast-success show' : 'toast-error show';
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function switchPhase(newPhase) {
+            document.getElementById(`phase-${State.currentPhase}`).classList.remove('active');
+            State.currentPhase = newPhase;
+            document.getElementById(`phase-${State.currentPhase}`).classList.add('active');
+            updateHUD();
+        }
+
+        function addXP(amount) {
+            State.xp += amount;
+            State.streak++;
+            updateHUD();
+        }
+
+        function resetStreak() {
+            State.streak = 0;
+            updateHUD();
+        }
+
+        // --- PHASE 1 LOGIC ---
+        function initPhase1() {
+            const container = document.getElementById('p1-content');
+            
+            // Shuffle copies
+            const terms = [...State.p1.pairs].sort(() => Math.random() - 0.5);
+            const defs = [...State.p1.pairs].sort(() => Math.random() - 0.5);
+
+            let html = `<div class="match-container">
+                <div class="match-column" id="col-terms">`;
+            terms.forEach(t => {
+                html += `<div class="match-item term" data-id="${t.id}">${t.text}</div>`;
+            });
+            html += `</div><div class="match-column" id="col-defs">`;
+            defs.forEach(d => {
+                html += `<div class="match-item def" data-match="${d.matchId}">${d.def}</div>`;
+            });
+            html += `</div></div>`;
+            container.innerHTML = html;
+
+            // Event Listeners
+            document.querySelectorAll('.match-item.term').forEach(el => {
+                el.addEventListener('click', (e) => handleMatchClick(e.target, 'term'));
+            });
+            document.querySelectorAll('.match-item.def').forEach(el => {
+                el.addEventListener('click', (e) => handleMatchClick(e.target, 'def'));
+            });
+
+            document.getElementById('btn-p1-check').addEventListener('click', checkPhase1);
+        }
+
+        function handleMatchClick(element, type) {
+            if (element.classList.contains('locked')) return;
+
+            // Deselect peers
+            document.querySelectorAll(`.match-item.${type}`).forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+
+            if (type === 'term') State.p1.selectedTerm = element;
+            if (type === 'def') State.p1.selectedDef = element;
+
+            // Auto-check if both selected
+            if (State.p1.selectedTerm && State.p1.selectedDef) {
+                const tId = State.p1.selectedTerm.getAttribute('data-id');
+                const dMatch = State.p1.selectedDef.getAttribute('data-match');
+                
+                // Extract matching logic: t1 matches d1
+                if (tId.substring(1) === dMatch.substring(1)) {
+                    // Match!
+                    State.p1.selectedTerm.classList.remove('selected');
+                    State.p1.selectedTerm.classList.add('locked');
+                    State.p1.selectedDef.classList.remove('selected');
+                    State.p1.selectedDef.classList.add('locked');
+                    State.p1.selectedTerm = null;
+                    State.p1.selectedDef = null;
+                    State.p1.matches++;
+                    addXP(50);
+                } else {
+                    // Mismatch
+                    State.p1.selectedTerm.classList.remove('selected');
+                    State.p1.selectedDef.classList.remove('selected');
+                    State.p1.selectedTerm = null;
+                    State.p1.selectedDef = null;
+                    resetStreak();
+                    showToast("Not quite. Try a different combination.", false);
+                }
+            }
+        }
+
+        function checkPhase1() {
+            if (State.p1.matches === 4) {
+                showToast("Baseline Established! Moving to Phase 2.", true);
+                setTimeout(() => { switchPhase(2); initPhase2(); }, 1500);
+            } else {
+                showToast("Complete all matches first.", false);
+            }
+        }
+
+        // --- PHASE 2 LOGIC (SVG GRAPHING) ---
+        function initPhase2() {
+            // Build Table
+            const table = document.getElementById('p2-table');
+            // clear existing rows except header
+            while(table.rows.length > 1) { table.deleteRow(1); }
+            State.p2.data.forEach(pt => {
+                const tr = table.insertRow();
+                tr.insertCell().innerText = pt.x;
+                tr.insertCell().innerText = pt.y.toLocaleString();
+            });
+
+            renderSVG();
+            document.getElementById('btn-p2-check').addEventListener('click', checkPhase2);
+        }
+
+        function mapToScreen(val, max, screenDim, isY) {
+            const ratio = val / max;
+            const graphArea = screenDim - (State.p2.config.pad * 2);
+            if (isY) {
+                return State.p2.config.height - State.p2.config.pad - (ratio * graphArea);
+            }
+            return State.p2.config.pad + (ratio * graphArea);
+        }
+
+        function mapToData(px, max, screenDim, isY) {
+            const graphArea = screenDim - (State.p2.config.pad * 2);
+            let ratio;
+            if (isY) {
+                ratio = (State.p2.config.height - State.p2.config.pad - px) / graphArea;
+            } else {
+                ratio = (px - State.p2.config.pad) / graphArea;
+            }
+            return ratio * max;
+        }
+
+        function renderSVG() {
+            const c = State.p2.config;
+            let svg = `<svg id="math-plane" width="${c.width}" height="${c.height}" style="background:var(--white);">`;
+            
+            // Grid Lines & Labels
+            const graphW = c.width - (c.pad * 2);
+            const graphH = c.height - (c.pad * 2);
+
+            // Y-axis
+            for(let i=0; i<=c.yStep; i++) {
+                const yPos = c.height - c.pad - (i * (graphH / c.yStep));
+                const yVal = Math.round(i * (c.yMax / c.yStep));
+                svg += `<line x1="${c.pad}" y1="${yPos}" x2="${c.width-c.pad}" y2="${yPos}" stroke="var(--sand)" stroke-width="1"/>`;
+                svg += `<text x="${c.pad - 5}" y="${yPos + 4}" font-size="10" fill="var(--navy)" text-anchor="end">${yVal}</text>`;
+            }
+
+            // X-axis
+            for(let i=0; i<=c.xStep; i++) {
+                const xPos = c.pad + (i * (graphW / c.xStep));
+                const xVal = Math.round(i * (c.xMax / c.xStep));
+                svg += `<line x1="${xPos}" y1="${c.pad}" x2="${xPos}" y2="${c.height-c.pad}" stroke="var(--sand)" stroke-width="1"/>`;
+                svg += `<text x="${xPos}" y="${c.height - c.pad + 15}" font-size="10" fill="var(--navy)" text-anchor="middle">${xVal}</text>`;
+            }
+
+            // Axes
+            svg += `<line x1="${c.pad}" y1="${c.pad}" x2="${c.pad}" y2="${c.height-c.pad}" stroke="var(--navy)" stroke-width="2"/>`;
+            svg += `<line x1="${c.pad}" y1="${c.height-c.pad}" x2="${c.width-c.pad}" y2="${c.height-c.pad}" stroke="var(--navy)" stroke-width="2"/>`;
+
+            // Plotted Points
+            State.p2.plottedPoints.forEach((pt, index) => {
+                const sx = mapToScreen(pt.x, c.xMax, c.width, false);
+                const sy = mapToScreen(pt.y, c.yMax, c.height, true);
+                svg += `<circle cx="${sx}" cy="${sy}" r="6" fill="var(--coral)" class="plotted-pt" data-idx="${index}" style="cursor:pointer;"/>`;
+            });
+
+            svg += `</svg>`;
+            document.getElementById('svg-wrapper').innerHTML = svg;
+
+            // Attach Event Listeners
+            const svgEl = document.getElementById('math-plane');
+            svgEl.addEventListener('click', handleSVGClick);
+        }
+
+        function handleSVGClick(e) {
+            const svgEl = document.getElementById('math-plane');
+            const rect = svgEl.getBoundingClientRect();
+            const px = e.clientX - rect.left;
+            const py = e.clientY - rect.top;
+
+            // Check if clicking existing point to remove
+            if (e.target.tagName === 'circle') {
+                const idx = parseInt(e.target.getAttribute('data-idx'));
+                State.p2.plottedPoints.splice(idx, 1);
+                renderSVG();
+                return;
+            }
+
+            const c = State.p2.config;
+            // Bound check
+            if(px < c.pad - 10 || px > c.width - c.pad + 10 || py < c.pad - 10 || py > c.height - c.pad + 10) return;
+
+            // Convert to data coords
+            let dataX = mapToData(px, c.xMax, c.width, false);
+            let dataY = mapToData(py, c.yMax, c.height, true);
+
+            // Snap to grid integers (or logic steps based on step size)
+            // For X: snap to nearest integer. For Y: snap to nearest 1000.
+            dataX = Math.round(dataX);
+            dataY = Math.round(dataY / 1000) * 1000;
+
+            // Limit bounds
+            if(dataX < 0) dataX = 0; if(dataX > c.xMax) dataX = c.xMax;
+            if(dataY < 0) dataY = 0; if(dataY > c.yMax) dataY = c.yMax;
+
+            // Don't plot more than required points
+            if (State.p2.plottedPoints.length < 4) {
+                State.p2.plottedPoints.push({x: dataX, y: dataY});
+                renderSVG();
+            } else {
+                showToast("Remove a point before adding another.", false);
+            }
+        }
+
+        function checkPhase2() {
+            if (State.p2.plottedPoints.length !== 4) {
+                showToast("Please plot exactly 4 points.", false);
+                return;
+            }
+
+            // Verify
+            let correctCount = 0;
+            State.p2.plottedPoints.forEach(p => {
+                const match = State.p2.data.find(d => d.x === p.x && d.y === p.y);
+                if(match) correctCount++;
+            });
+
+            if (correctCount === 4) {
+                addXP(200);
+                showToast("Visual Model Verified! Initializing TWR Engine.", true);
+                setTimeout(() => { switchPhase(3); initPhase3(); }, 1500);
+            } else {
+                resetStreak();
+                showToast(`Check your points. ${correctCount}/4 are correct.`, false);
+            }
+        }
+
+        // --- PHASE 3 LOGIC (PROCEDURAL TWR) ---
+        function initPhase3() {
+            generateProceduralQuestion();
+            // Need to remove old listener if regenerating to avoid duplicates, handled via inline assignment or single init.
+            const btn = document.getElementById('btn-p3-check');
+            btn.onclick = checkPhase3;
+        }
+
+        function generateProceduralQuestion() {
+            const types = [
+                {
+                    context: "Ticket Cost",
+                    indLabel: "number of tickets",
+                    depLabel: "total cost",
+                    baseRateMin: 20, baseRateMax: 60,
+                    unit: "$"
+                },
+                {
+                    context: "Savings Account",
+                    indLabel: "months saved",
+                    depLabel: "total saved",
+                    baseRateMin: 25, baseRateMax: 150,
+                    unit: "$"
+                },
+                {
+                    context: "Tram Travel",
+                    indLabel: "minutes traveled",
+                    depLabel: "distance traveled",
+                    baseRateMin: 500, baseRateMax: 1500,
+                    unit: "ft"
+                }
+            ];
+
+            const t = types[Math.floor(Math.random() * types.length)];
+            const rate = Math.floor(Math.random() * (t.baseRateMax - t.baseRateMin + 1)) + t.baseRateMin;
+            const qMulti = Math.floor(Math.random() * 8) + 3; // 3 to 10
+            const constraintMulti = qMulti - (Math.floor(Math.random()*2)+1); // slightly less
+            const totalCost = rate * qMulti;
+            const constraintCost = rate * constraintMulti;
+
+            State.p3.currentData = {
+                type: t,
+                rate: rate,
+                qMulti: qMulti,
+                totalCost: totalCost,
+                constraintMulti: constraintMulti,
+                constraintCost: constraintCost
+            };
+
+            // Inject Scenario
+            let scenarioHTML = `Context: ${t.context}. <br>
+            If the rate is ${t.unit === '$' ? '$'+rate : rate+' '+t.unit} per 1 unit of the independent variable.<br><br>
+            <strong>Question:</strong> What is the dependent value when the independent value is ${qMulti}?`;
+            document.getElementById('p3-scenario').innerHTML = scenarioHTML;
+
+            // Inject TWR Frame
+            let twrHTML = `
+                <p>
+                    <strong>Because</strong> the rate is exactly <input type="number" id="twr-rate" class="twr-input" placeholder="?"> per unit, 
+                    having ${qMulti} units means the total is <input type="number" id="twr-total" class="twr-input" placeholder="?">.
+                </p>
+                <p>
+                    <strong>But</strong> if the dependent limit was strictly ${t.unit === '$' ? '$'+constraintCost : constraintCost+' '+t.unit}, 
+                    the maximum independent units allowed would only be <input type="number" id="twr-limit" class="twr-input" placeholder="?">.
+                </p>
+                <p>
+                    <strong>So</strong>, the dependent variable relies entirely on the 
+                    <select id="twr-ind" class="twr-select">
+                        <option value="none">-- select --</option>
+                        <option value="ind">${t.indLabel}</option>
+                        <option value="dep">${t.depLabel}</option>
+                    </select>.
+                </p>
+            `;
+            document.getElementById('p3-twr').innerHTML = twrHTML;
+        }
+
+        function checkPhase3() {
+            const d = State.p3.currentData;
+            const ansRate = parseInt(document.getElementById('twr-rate').value);
+            const ansTotal = parseInt(document.getElementById('twr-total').value);
+            const ansLimit = parseInt(document.getElementById('twr-limit').value);
+            const ansInd = document.getElementById('twr-ind').value;
+
+            if(ansRate === d.rate && ansTotal === d.totalCost && ansLimit === d.constraintMulti && ansInd === 'ind') {
+                addXP(500);
+                showToast("+500 XP! Mastery achieved. Generating new scenario...", true);
+                
+                // Add a small celebration effect
+                document.getElementById('phase-3').style.transform = "scale(1.02)";
+                setTimeout(() => { document.getElementById('phase-3').style.transform = "scale(1)"; }, 200);
+
+                setTimeout(() => {
+                    generateProceduralQuestion();
+                }, 1500);
+            } else {
+                resetStreak();
+                showToast("Careful. Review your calculations and variable choices.", false);
+            }
+        }
+
+        // --- INIT ---
+        window.onload = () => {
+            initPhase1();
+            updateHUD();
+        };
+
+    </script>
+</body>
+</html>
